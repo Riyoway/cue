@@ -4,7 +4,7 @@ name: Release
 # 配布物をビルドして GitHub Release（下書き）へ添付します。
 #
 #   Windows x64   : NSIS(.exe) / MSI(.msi) / ポータブル(.exe)
-#   Windows ARM64 : NSIS(.exe) / ポータブル(.exe) / MSIX(.msix, Store提出用)
+#   Windows ARM64 : NSIS(.exe) / ポータブル(.exe)
 #   macOS  x64    : .app / .dmg
 #   Linux  x64    : .deb
 #   Linux  ARM64  : .deb / .AppImage
@@ -33,7 +33,6 @@ jobs:
             target: aarch64-pc-windows-msvc
             bundles: "nsis"
             portable_name: "Cue_portable_arm64.exe"
-            msix: true
           - name: macos-x64
             runner: macos-13
             target: x86_64-apple-darwin
@@ -107,24 +106,3 @@ jobs:
         run: |
           Copy-Item "src-tauri/target/${{ matrix.target }}/release/cue.exe" "${{ matrix.portable_name }}"
           gh release upload ${{ github.ref_name }} "${{ matrix.portable_name }}" --clobber
-
-      # ---- Microsoft Store 提出用 MSIX（要 Identity/署名の設定） ----
-      - name: Build & upload MSIX
-        if: ${{ matrix.msix && startsWith(github.ref, 'refs/tags/') }}
-        shell: pwsh
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          $ErrorActionPreference = "Stop"
-          $stage = "msix-stage"
-          New-Item -ItemType Directory -Force "$stage/Assets" | Out-Null
-          Copy-Item "src-tauri/target/${{ matrix.target }}/release/cue.exe" "$stage/cue.exe"
-          Copy-Item "src-tauri/icons/Square*Logo.png" "$stage/Assets/"
-          Copy-Item "src-tauri/icons/StoreLogo.png" "$stage/Assets/"
-          Copy-Item "src-tauri/msix/AppxManifest.xml" "$stage/AppxManifest.xml"
-          $sdkBin = Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin" -Directory |
-            Where-Object { Test-Path (Join-Path $_.FullName 'x64/makeappx.exe') } |
-            Sort-Object Name -Descending | Select-Object -First 1
-          $makeappx = Join-Path $sdkBin.FullName 'x64/makeappx.exe'
-          & $makeappx pack /d "$stage" /p "Cue_arm64.msix" /o
-          gh release upload ${{ github.ref_name }} "Cue_arm64.msix" --clobber
