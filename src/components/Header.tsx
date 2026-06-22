@@ -32,6 +32,7 @@ export function Header() {
   const setWindowPinned = useStore((s) => s.setWindowPinned);
   const newItem = useStore((s) => s.newItem);
   const openSettings = useStore((s) => s.openSettings);
+  const updateAvailable = useStore((s) => s.updateInfo !== null);
   const theme = useStore((s) => s.settings.theme);
   const setTheme = useStore((s) => s.setTheme);
   const isDark = useStore((s) => s.isDark);
@@ -88,9 +89,21 @@ export function Header() {
         <Plus size={17} />
       </IconButton>
 
-      <IconButton label={t("actSettings")} onClick={openSettings}>
-        <Settings size={16} />
-      </IconButton>
+      <div className="relative">
+        <IconButton
+          label={
+            updateAvailable
+              ? `${t("actSettings")} · ${t("setUpdateBadge")}`
+              : t("actSettings")
+          }
+          onClick={openSettings}
+        >
+          <Settings size={16} />
+        </IconButton>
+        {updateAvailable && (
+          <span className="pointer-events-none absolute top-0.5 right-0.5 h-2 w-2 rounded-full bg-accent-500 ring-2 ring-zinc-100 dark:ring-zinc-950" />
+        )}
+      </div>
 
       <div className="mx-1 h-5 w-px bg-zinc-300 dark:bg-zinc-700" />
 

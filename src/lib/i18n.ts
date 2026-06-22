@@ -144,6 +144,13 @@ const en: Dict = {
   confirmEraseBody:
     "All prompts, projects, and settings will be permanently deleted and the app reset to its initial state. This cannot be undone.",
   tDataErased: "All data erased",
+  setVersion: "Version",
+  setUpToDate: "Up to date",
+  setUpdateAvailable: "Version {version} is available",
+  setUpdateBadge: "Update available",
+  btnDownload: "Download",
+  updateTitle: "Update",
+  updateChangelog: "Changelog",
 };
 
 const ja: Dict = {
@@ -252,6 +259,13 @@ const ja: Dict = {
   confirmEraseBody:
     "すべてのプロンプト・プロジェクト・設定を完全に削除し、アプリを初期状態に戻します。この操作は元に戻せません。",
   tDataErased: "すべてのデータを消去しました",
+  setVersion: "バージョン",
+  setUpToDate: "最新です",
+  setUpdateAvailable: "新しいバージョン {version} が利用可能です",
+  setUpdateBadge: "アップデートあり",
+  btnDownload: "ダウンロード",
+  updateTitle: "アップデート",
+  updateChangelog: "変更履歴",
 };
 
 const zh: Dict = {
@@ -354,6 +368,13 @@ const zh: Dict = {
   confirmEraseBody:
     "将永久删除所有 Prompt、项目和设置，并将应用重置为初始状态。此操作无法撤销。",
   tDataErased: "已清除所有数据",
+  setVersion: "版本",
+  setUpToDate: "已是最新",
+  setUpdateAvailable: "有新版本 {version} 可用",
+  setUpdateBadge: "有可用更新",
+  btnDownload: "下载",
+  updateTitle: "更新",
+  updateChangelog: "更新日志",
 };
 
 const ko: Dict = {
@@ -456,6 +477,13 @@ const ko: Dict = {
   confirmEraseBody:
     "모든 프롬프트, 프로젝트, 설정이 영구적으로 삭제되고 앱이 초기 상태로 돌아갑니다. 이 작업은 되돌릴 수 없습니다.",
   tDataErased: "모든 데이터를 지웠습니다",
+  setVersion: "버전",
+  setUpToDate: "최신 상태입니다",
+  setUpdateAvailable: "새 버전 {version}을(를) 사용할 수 있습니다",
+  setUpdateBadge: "업데이트 있음",
+  btnDownload: "다운로드",
+  updateTitle: "업데이트",
+  updateChangelog: "변경 사항",
 };
 
 const es: Dict = {
@@ -559,6 +587,13 @@ const es: Dict = {
   confirmEraseBody:
     "Se eliminarán de forma permanente todos los prompts, proyectos y ajustes, y la aplicación volverá a su estado inicial. Esta acción no se puede deshacer.",
   tDataErased: "Todos los datos borrados",
+  setVersion: "Versión",
+  setUpToDate: "Actualizado",
+  setUpdateAvailable: "La versión {version} está disponible",
+  setUpdateBadge: "Actualización disponible",
+  btnDownload: "Descargar",
+  updateTitle: "Actualización",
+  updateChangelog: "Registro de cambios",
 };
 
 const fr: Dict = {
@@ -662,6 +697,13 @@ const fr: Dict = {
   confirmEraseBody:
     "Tous les prompts, projets et paramètres seront définitivement supprimés et l’application réinitialisée à son état initial. Cette action est irréversible.",
   tDataErased: "Toutes les données effacées",
+  setVersion: "Version",
+  setUpToDate: "À jour",
+  setUpdateAvailable: "La version {version} est disponible",
+  setUpdateBadge: "Mise à jour disponible",
+  btnDownload: "Télécharger",
+  updateTitle: "Mise à jour",
+  updateChangelog: "Notes de version",
 };
 
 const de: Dict = {
@@ -765,6 +807,13 @@ const de: Dict = {
   confirmEraseBody:
     "Alle Prompts, Projekte und Einstellungen werden dauerhaft gelöscht und die App auf den Ausgangszustand zurückgesetzt. Dies kann nicht rückgängig gemacht werden.",
   tDataErased: "Alle Daten gelöscht",
+  setVersion: "Version",
+  setUpToDate: "Aktuell",
+  setUpdateAvailable: "Version {version} ist verfügbar",
+  setUpdateBadge: "Update verfügbar",
+  btnDownload: "Herunterladen",
+  updateTitle: "Update",
+  updateChangelog: "Änderungen",
 };
 
 const pt: Dict = {
@@ -868,6 +917,13 @@ const pt: Dict = {
   confirmEraseBody:
     "Todos os prompts, projetos e configurações serão excluídos permanentemente e o app voltará ao estado inicial. Esta ação não pode ser desfeita.",
   tDataErased: "Todos os dados apagados",
+  setVersion: "Versão",
+  setUpToDate: "Atualizado",
+  setUpdateAvailable: "A versão {version} está disponível",
+  setUpdateBadge: "Atualização disponível",
+  btnDownload: "Baixar",
+  updateTitle: "Atualização",
+  updateChangelog: "Novidades",
 };
 
 const it: Dict = {
@@ -971,6 +1027,13 @@ const it: Dict = {
   confirmEraseBody:
     "Tutti i prompt, i progetti e le impostazioni verranno eliminati definitivamente e l’app verrà ripristinata allo stato iniziale. Questa azione non può essere annullata.",
   tDataErased: "Tutti i dati cancellati",
+  setVersion: "Versione",
+  setUpToDate: "Aggiornato",
+  setUpdateAvailable: "La versione {version} è disponibile",
+  setUpdateBadge: "Aggiornamento disponibile",
+  btnDownload: "Scarica",
+  updateTitle: "Aggiornamento",
+  updateChangelog: "Novità",
 };
 
 const ru: Dict = {
@@ -1074,6 +1137,13 @@ const ru: Dict = {
   confirmEraseBody:
     "Все промпты, проекты и настройки будут безвозвратно удалены, а приложение вернётся к начальному состоянию. Это действие нельзя отменить.",
   tDataErased: "Все данные удалены",
+  setVersion: "Версия",
+  setUpToDate: "Установлена последняя версия",
+  setUpdateAvailable: "Доступна версия {version}",
+  setUpdateBadge: "Доступно обновление",
+  btnDownload: "Скачать",
+  updateTitle: "Обновление",
+  updateChangelog: "Список изменений",
 };
 
 const id: Dict = {
@@ -1177,6 +1247,13 @@ const id: Dict = {
   confirmEraseBody:
     "Semua prompt, proyek, dan pengaturan akan dihapus secara permanen dan aplikasi dikembalikan ke keadaan awal. Tindakan ini tidak dapat dibatalkan.",
   tDataErased: "Semua data dihapus",
+  setVersion: "Versi",
+  setUpToDate: "Versi terbaru",
+  setUpdateAvailable: "Versi {version} tersedia",
+  setUpdateBadge: "Pembaruan tersedia",
+  btnDownload: "Unduh",
+  updateTitle: "Pembaruan",
+  updateChangelog: "Catatan rilis",
 };
 
 const vi: Dict = {
@@ -1280,6 +1357,13 @@ const vi: Dict = {
   confirmEraseBody:
     "Tất cả prompt, dự án và cài đặt sẽ bị xóa vĩnh viễn và ứng dụng trở về trạng thái ban đầu. Không thể hoàn tác thao tác này.",
   tDataErased: "Đã xóa toàn bộ dữ liệu",
+  setVersion: "Phiên bản",
+  setUpToDate: "Đã là mới nhất",
+  setUpdateAvailable: "Đã có phiên bản {version}",
+  setUpdateBadge: "Có bản cập nhật",
+  btnDownload: "Tải xuống",
+  updateTitle: "Cập nhật",
+  updateChangelog: "Nhật ký thay đổi",
 };
 
 const tr: Dict = {
@@ -1383,6 +1467,13 @@ const tr: Dict = {
   confirmEraseBody:
     "Tüm promptlar, projeler ve ayarlar kalıcı olarak silinecek ve uygulama başlangıç durumuna sıfırlanacak. Bu işlem geri alınamaz.",
   tDataErased: "Tüm veriler silindi",
+  setVersion: "Sürüm",
+  setUpToDate: "Güncel",
+  setUpdateAvailable: "{version} sürümü mevcut",
+  setUpdateBadge: "Güncelleme var",
+  btnDownload: "İndir",
+  updateTitle: "Güncelleme",
+  updateChangelog: "Değişiklikler",
 };
 
 const pl: Dict = {
@@ -1486,6 +1577,13 @@ const pl: Dict = {
   confirmEraseBody:
     "Wszystkie prompty, projekty i ustawienia zostaną trwale usunięte, a aplikacja wróci do stanu początkowego. Tej operacji nie można cofnąć.",
   tDataErased: "Usunięto wszystkie dane",
+  setVersion: "Wersja",
+  setUpToDate: "Aktualna",
+  setUpdateAvailable: "Dostępna jest wersja {version}",
+  setUpdateBadge: "Dostępna aktualizacja",
+  btnDownload: "Pobierz",
+  updateTitle: "Aktualizacja",
+  updateChangelog: "Lista zmian",
 };
 
 const DICTS: Record<Lang, Dict> = {

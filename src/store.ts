@@ -14,6 +14,7 @@ import {
 } from "./types";
 import * as dbApi from "./lib/db";
 import { type Lang, detectLang, makeTranslate } from "./lib/i18n";
+import { type UpdateInfo, currentVersion, fetchUpdate } from "./lib/update";
 import {
   applyShortcuts,
   copyToClipboard,
@@ -71,6 +72,9 @@ interface CueState {
   syncing: boolean;
   lastSyncedAt: number | null;
   isDark: boolean;
+  version: string;
+  updateInfo: UpdateInfo | null;
+  updateDismissed: boolean;
   contextMenu: ContextMenuState | null;
   renamingProjectId: number | null;
   renamingItemId: number | null;
@@ -80,6 +84,8 @@ interface CueState {
   init: () => Promise<void>;
   refresh: () => Promise<void>;
   reloadAll: () => Promise<void>;
+  checkForUpdate: () => Promise<void>;
+  dismissUpdate: () => void;
   exportToFile: () => Promise<void>;
   importFromFile: () => Promise<void>;
   setGitConfig: (remote: string, branch: string, enabled: boolean) => Promise<void>;
@@ -176,6 +182,9 @@ export const useStore = create<CueState>((set, get) => ({
   syncing: false,
   lastSyncedAt: null,
   isDark: false,
+  version: "",
+  updateInfo: null,
+  updateDismissed: false,
   contextMenu: null,
   pendingProjectDelete: null,
   pendingDataErase: false,
@@ -233,7 +242,19 @@ export const useStore = create<CueState>((set, get) => ({
     } catch {
       /* noop */
     }
+
+    // 起動を妨げないようアップデート確認はバックグラウンドで。
+    void get().checkForUpdate();
   },
+
+  checkForUpdate: async () => {
+    const version = await currentVersion();
+    if (version && version !== get().version) set({ version });
+    const info = await fetchUpdate(version);
+    if (info) set({ updateInfo: info });
+  },
+
+  dismissUpdate: () => set({ updateDismissed: true }),
 
   refresh: async () => {
     const items = await dbApi.listItems();

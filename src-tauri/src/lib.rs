@@ -177,6 +177,32 @@ fn git_available() -> bool {
         .unwrap_or(false)
 }
 
+/// 既定ブラウザで URL を開く（アップデートの手動ダウンロードへ誘導する）。
+#[tauri::command]
+fn open_url(url: String) -> Result<(), String> {
+    // このコマンドはフロント全体から呼べるため、コマンドインジェクションを防ぐ。
+    // https 限定かつ、空白・制御文字・シェル特殊文字を含む URL は拒否する。
+    let allowed = url.starts_with("https://")
+        && url.len() <= 2048
+        && !url
+            .chars()
+            .any(|c| c.is_whitespace() || c.is_control() || "&|^<>\"'`$\\(){}[]".contains(c));
+    if !allowed {
+        return Err("invalid url".into());
+    }
+    // いずれもシェル(cmd.exe)を介さず、URL を引数として OS のハンドラに直接渡す。
+    #[cfg(target_os = "windows")]
+    let res = Command::new("rundll32")
+        .arg("url.dll,FileProtocolHandler")
+        .arg(&url)
+        .spawn();
+    #[cfg(target_os = "macos")]
+    let res = Command::new("open").arg(&url).spawn();
+    #[cfg(target_os = "linux")]
+    let res = Command::new("xdg-open").arg(&url).spawn();
+    res.map(|_| ()).map_err(|e| e.to_string())
+}
+
 /// リモートの最新 cue.json の中身を返す（なければ None）。
 #[tauri::command]
 fn git_remote_snapshot(
@@ -400,7 +426,8 @@ pub fn run() {
             import_data,
             git_available,
             git_remote_snapshot,
-            git_commit_snapshot
+            git_commit_snapshot,
+            open_url
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");

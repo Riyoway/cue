@@ -29,6 +29,9 @@ export const setWebviewZoom = (scale: number) =>
 export const setWindowAlwaysOnTop = (value: boolean) =>
   invoke("set_always_on_top", { value });
 
+/** 既定ブラウザで URL を開く（https のみ）。 */
+export const openUrl = (url: string) => invoke<void>("open_url", { url });
+
 export const applyShortcuts = (summon: string, quicksave: string) =>
   invoke<void>("apply_shortcuts", { summon, quicksave });
 

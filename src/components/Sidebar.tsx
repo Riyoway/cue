@@ -4,8 +4,18 @@ import {
   useEffect,
   useState,
 } from "react";
-import { FilePlus, Folder, Layers, Pencil, Plus, Trash2 } from "lucide-react";
+import {
+  Download,
+  FilePlus,
+  Folder,
+  Layers,
+  Pencil,
+  Plus,
+  Trash2,
+  X,
+} from "lucide-react";
 import { useStore } from "../store";
+import { openUrl } from "../lib/tauri";
 import { useT } from "../lib/i18n";
 import type { Project } from "../types";
 
@@ -19,6 +29,9 @@ export function Sidebar() {
   const renameProject = useStore((s) => s.renameProject);
   const removeProject = useStore((s) => s.removeProject);
   const newItem = useStore((s) => s.newItem);
+  const updateInfo = useStore((s) => s.updateInfo);
+  const updateDismissed = useStore((s) => s.updateDismissed);
+  const dismissUpdate = useStore((s) => s.dismissUpdate);
   const openContextMenu = useStore((s) => s.openContextMenu);
   const startRenameProject = useStore((s) => s.startRenameProject);
   const renamingProjectId = useStore((s) => s.renamingProjectId);
@@ -227,6 +240,43 @@ export function Sidebar() {
           </button>
         )}
       </div>
+
+      {updateInfo && !updateDismissed && (
+        <div className="shrink-0 p-2 pt-0">
+          <div className="relative overflow-hidden rounded-xl border border-accent-500/30 bg-gradient-to-br from-accent-500/15 to-accent-500/[0.04] px-3 pt-3 pb-3 text-center dark:border-accent-400/25">
+            <button
+              type="button"
+              title={t("btnCancel")}
+              aria-label={t("btnCancel")}
+              onClick={() => dismissUpdate()}
+              className="absolute top-1.5 right-1.5 grid h-5 w-5 cursor-pointer place-items-center rounded text-zinc-400 outline-none transition-colors hover:text-zinc-600 focus-visible:ring-2 focus-visible:ring-accent-500/50 dark:hover:text-zinc-200"
+            >
+              <X size={13} />
+            </button>
+            <div className="text-[12px] font-semibold text-zinc-800 dark:text-zinc-100">
+              {t("updateTitle")}
+            </div>
+            <p className="mt-1 text-[11px] leading-snug text-zinc-600 dark:text-zinc-300">
+              {t("setUpdateAvailable", { version: updateInfo.version })}
+            </p>
+            <button
+              type="button"
+              onClick={() => openUrl(updateInfo.url)}
+              className="mt-2.5 flex w-full cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-accent-600 px-3 py-2 text-[12px] font-semibold text-white outline-none transition duration-150 hover:bg-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/60 active:scale-95"
+            >
+              <Download size={14} aria-hidden />
+              {t("btnDownload")}
+            </button>
+            <button
+              type="button"
+              onClick={() => openUrl(updateInfo.url)}
+              className="mt-1.5 cursor-pointer text-[11px] text-accent-600 underline-offset-2 outline-none hover:underline focus-visible:underline dark:text-accent-300"
+            >
+              {t("updateChangelog")}
+            </button>
+          </div>
+        </div>
+      )}
     </aside>
   );
 }

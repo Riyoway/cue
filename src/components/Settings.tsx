@@ -1,7 +1,7 @@
 import { type KeyboardEvent, type ReactNode, useEffect, useState } from "react";
 import { Check, Download, RefreshCw, Trash2, TriangleAlert, Upload, X } from "lucide-react";
 import { useStore } from "../store";
-import { gitAvailable, quitApp } from "../lib/tauri";
+import { gitAvailable, openUrl, quitApp } from "../lib/tauri";
 import { handleHeaderMouseDown } from "../lib/drag";
 import { LANGUAGES, useT } from "../lib/i18n";
 import { MOD } from "../lib/platform";
@@ -158,6 +158,8 @@ export function Settings() {
   const syncing = useStore((s) => s.syncing);
   const lastSyncedAt = useStore((s) => s.lastSyncedAt);
   const requestDataErase = useStore((s) => s.requestDataErase);
+  const version = useStore((s) => s.version);
+  const updateInfo = useStore((s) => s.updateInfo);
   const t = useT();
 
   const [draft, setDraft] = useState<SettingsType>(settings);
@@ -182,6 +184,8 @@ export function Settings() {
     "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-[12px] font-medium text-zinc-700 outline-none transition duration-150 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-accent-500/40 active:scale-95 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800";
   const dangerBtn =
     "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-300 px-2.5 py-1.5 text-[12px] font-medium text-red-600 outline-none transition duration-150 hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500/40 active:scale-95 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40";
+  const primaryBtn =
+    "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-accent-600 px-2.5 py-1.5 text-[12px] font-medium text-white outline-none transition duration-150 hover:bg-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/60 active:scale-95";
 
   return (
     <div className="cue-overlay-in absolute inset-0 z-30 flex flex-col bg-white dark:bg-zinc-900">
@@ -360,6 +364,28 @@ export function Settings() {
               </p>
             </div>
           )}
+        </Section>
+
+        <Section title={t("setVersion")}>
+          <Row
+            label={version ? `Cue ${version}` : "Cue"}
+            desc={
+              updateInfo
+                ? t("setUpdateAvailable", { version: updateInfo.version })
+                : t("setUpToDate")
+            }
+          >
+            {updateInfo && (
+              <button
+                type="button"
+                onClick={() => openUrl(updateInfo.url)}
+                className={primaryBtn}
+              >
+                <Download size={14} aria-hidden />
+                {t("btnDownload")}
+              </button>
+            )}
+          </Row>
         </Section>
 
         <Section title={t("setData")}>
