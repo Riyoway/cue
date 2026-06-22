@@ -107,3 +107,73 @@ jobs:
         run: |
           Copy-Item "src-tauri/target/${{ matrix.target }}/release/cue.exe" "${{ matrix.portable_name }}"
           gh release upload ${{ github.ref_name }} "${{ matrix.portable_name }}" --clobber
+
+  # 全ビルド完了後、アセット名に OS を入れて統一する。
+  #   Cue_<version>_<os>_<arch>[_<kind>].<ext>
+  #   os は拡張子から判定: deb/AppImage/rpm=linux, dmg/app.tar.gz=macos, exe/msi=windows
+  rename-assets:
+    needs: build
+    if: startsWith(github.ref, 'refs/tags/')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - name: Normalize asset names to include the OS
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          REPO: ${{ github.repository }}
+          TAG: ${{ github.ref_name }}
+        run: |
+          set -euo pipefail
+          VER="${TAG#v}"
+
+          # 下書きリリースは tags エンドポイントで引けないことがあるため一覧から探す。
+          REL_ID=$(gh api --paginate "repos/$REPO/releases" \
+            --jq ".[] | select(.tag_name==\"$TAG\") | .id" | head -n1)
+          if [ -z "$REL_ID" ]; then
+            echo "::error::release for $TAG not found"; exit 1
+          fi
+
+          normalize() {
+            local n="$1" low ext os arch kind
+            low=$(printf '%s' "$n" | tr '[:upper:]' '[:lower:]')
+
+            case "$low" in
+              *.app.tar.gz) ext="app.tar.gz" ;;
+              *) ext="${n##*.}" ;;
+            esac
+
+            case "$low" in
+              *.deb|*.appimage|*.rpm) os="linux" ;;
+              *.dmg|*.app.tar.gz)     os="macos" ;;
+              *.exe|*.msi)            os="windows" ;;
+              *) printf ''; return ;;            # 対象外は触らない
+            esac
+
+            if   [[ "$low" == *aarch64* || "$low" == *arm64* ]]; then arch="arm64"
+            elif [[ "$low" == *x86_64* || "$low" == *amd64* || "$low" == *x64* ]]; then arch="x64"
+            elif [[ "$low" == *universal* ]]; then arch="universal"
+            else arch=""
+            fi
+
+            if   [[ "$low" == *portable* ]]; then kind="portable"
+            elif [[ "$ext" == "exe" && "$low" == *setup* ]]; then kind="setup"
+            else kind=""
+            fi
+
+            local out="Cue_${VER}_${os}"
+            [ -n "$arch" ] && out="${out}_${arch}"
+            [ -n "$kind" ] && out="${out}_${kind}"
+            printf '%s.%s' "$out" "$ext"
+          }
+
+          gh api --paginate "repos/$REPO/releases/$REL_ID/assets" \
+            --jq '.[] | "\(.id)\t\(.name)"' | while IFS=$'\t' read -r id name; do
+            new=$(normalize "$name")
+            if [ -n "$new" ] && [ "$new" != "$name" ]; then
+              echo "rename: $name -> $new"
+              gh api -X PATCH "repos/$REPO/releases/assets/$id" -f name="$new" >/dev/null
+            else
+              echo "keep:   $name"
+            fi
+          done
