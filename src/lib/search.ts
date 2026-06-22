@@ -43,11 +43,14 @@ export function filterItems(items: Item[], query: string): Item[] {
   return scored.map((s) => s.item);
 }
 
-/** 一覧やコピー用にタイトルを決める (空なら本文1行目)。 */
+/**
+ * 一覧表示用にタイトルを決める (空なら本文1行目)。
+ * タイトルも本文も空なら "" を返し、表示側で t("untitled") を当てる。
+ */
 export function displayTitle(item: { title: string; body: string }): string {
   if (item.title.trim()) return item.title.trim();
   const firstLine = item.body.split("\n").find((l) => l.trim());
-  return firstLine ? firstLine.trim() : "(無題)";
+  return firstLine ? firstLine.trim() : "";
 }
 
 /** 一覧プレビュー用の本文スニペット。 */

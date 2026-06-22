@@ -151,6 +151,8 @@ const en: Dict = {
   btnDownload: "Download",
   updateTitle: "Update",
   updateChangelog: "Changelog",
+  untitled: "(Untitled)",
+  tImportBadFormat: "This is not a Cue backup file",
 };
 
 const ja: Dict = {
@@ -266,6 +268,8 @@ const ja: Dict = {
   btnDownload: "ダウンロード",
   updateTitle: "アップデート",
   updateChangelog: "変更履歴",
+  untitled: "(無題)",
+  tImportBadFormat: "Cue のバックアップ形式ではありません",
 };
 
 const zh: Dict = {
@@ -375,6 +379,14 @@ const zh: Dict = {
   btnDownload: "下载",
   updateTitle: "更新",
   updateChangelog: "更新日志",
+  actSidebar: "切换侧边栏",
+  setTextSize: "文字大小",
+  sizeS: "小",
+  sizeM: "中",
+  sizeL: "大",
+  sizeXL: "特大",
+  untitled: "(无标题)",
+  tImportBadFormat: "这不是 Cue 的备份文件",
 };
 
 const ko: Dict = {
@@ -484,6 +496,14 @@ const ko: Dict = {
   btnDownload: "다운로드",
   updateTitle: "업데이트",
   updateChangelog: "변경 사항",
+  actSidebar: "사이드바 토글",
+  setTextSize: "텍스트 크기",
+  sizeS: "작게",
+  sizeM: "보통",
+  sizeL: "크게",
+  sizeXL: "아주 크게",
+  untitled: "(제목 없음)",
+  tImportBadFormat: "Cue 백업 파일이 아닙니다",
 };
 
 const es: Dict = {
@@ -594,6 +614,14 @@ const es: Dict = {
   btnDownload: "Descargar",
   updateTitle: "Actualización",
   updateChangelog: "Registro de cambios",
+  actSidebar: "Mostrar/ocultar barra lateral",
+  setTextSize: "Tamaño del texto",
+  sizeS: "Pequeño",
+  sizeM: "Mediano",
+  sizeL: "Grande",
+  sizeXL: "Muy grande",
+  untitled: "(Sin título)",
+  tImportBadFormat: "No es un archivo de copia de Cue",
 };
 
 const fr: Dict = {
@@ -704,6 +732,14 @@ const fr: Dict = {
   btnDownload: "Télécharger",
   updateTitle: "Mise à jour",
   updateChangelog: "Notes de version",
+  actSidebar: "Afficher/masquer la barre latérale",
+  setTextSize: "Taille du texte",
+  sizeS: "Petit",
+  sizeM: "Moyen",
+  sizeL: "Grand",
+  sizeXL: "Très grand",
+  untitled: "(Sans titre)",
+  tImportBadFormat: "Ce n’est pas un fichier de sauvegarde Cue",
 };
 
 const de: Dict = {
@@ -814,6 +850,14 @@ const de: Dict = {
   btnDownload: "Herunterladen",
   updateTitle: "Update",
   updateChangelog: "Änderungen",
+  actSidebar: "Seitenleiste umschalten",
+  setTextSize: "Textgröße",
+  sizeS: "Klein",
+  sizeM: "Mittel",
+  sizeL: "Groß",
+  sizeXL: "Sehr groß",
+  untitled: "(Ohne Titel)",
+  tImportBadFormat: "Dies ist keine Cue-Sicherungsdatei",
 };
 
 const pt: Dict = {
@@ -924,6 +968,14 @@ const pt: Dict = {
   btnDownload: "Baixar",
   updateTitle: "Atualização",
   updateChangelog: "Novidades",
+  actSidebar: "Alternar barra lateral",
+  setTextSize: "Tamanho do texto",
+  sizeS: "Pequeno",
+  sizeM: "Médio",
+  sizeL: "Grande",
+  sizeXL: "Muito grande",
+  untitled: "(Sem título)",
+  tImportBadFormat: "Este não é um arquivo de backup do Cue",
 };
 
 const it: Dict = {
@@ -1034,6 +1086,14 @@ const it: Dict = {
   btnDownload: "Scarica",
   updateTitle: "Aggiornamento",
   updateChangelog: "Novità",
+  actSidebar: "Mostra/nascondi barra laterale",
+  setTextSize: "Dimensione del testo",
+  sizeS: "Piccolo",
+  sizeM: "Medio",
+  sizeL: "Grande",
+  sizeXL: "Molto grande",
+  untitled: "(Senza titolo)",
+  tImportBadFormat: "Non è un file di backup di Cue",
 };
 
 const ru: Dict = {
@@ -1144,6 +1204,14 @@ const ru: Dict = {
   btnDownload: "Скачать",
   updateTitle: "Обновление",
   updateChangelog: "Список изменений",
+  actSidebar: "Боковая панель",
+  setTextSize: "Размер текста",
+  sizeS: "Маленький",
+  sizeM: "Средний",
+  sizeL: "Большой",
+  sizeXL: "Очень большой",
+  untitled: "(Без названия)",
+  tImportBadFormat: "Это не файл резервной копии Cue",
 };
 
 const id: Dict = {
@@ -1254,6 +1322,14 @@ const id: Dict = {
   btnDownload: "Unduh",
   updateTitle: "Pembaruan",
   updateChangelog: "Catatan rilis",
+  actSidebar: "Alihkan bilah sisi",
+  setTextSize: "Ukuran teks",
+  sizeS: "Kecil",
+  sizeM: "Sedang",
+  sizeL: "Besar",
+  sizeXL: "Sangat besar",
+  untitled: "(Tanpa judul)",
+  tImportBadFormat: "Ini bukan file cadangan Cue",
 };
 
 const vi: Dict = {
@@ -1364,6 +1440,14 @@ const vi: Dict = {
   btnDownload: "Tải xuống",
   updateTitle: "Cập nhật",
   updateChangelog: "Nhật ký thay đổi",
+  actSidebar: "Bật/tắt thanh bên",
+  setTextSize: "Cỡ chữ",
+  sizeS: "Nhỏ",
+  sizeM: "Vừa",
+  sizeL: "Lớn",
+  sizeXL: "Rất lớn",
+  untitled: "(Không có tiêu đề)",
+  tImportBadFormat: "Đây không phải tệp sao lưu Cue",
 };
 
 const tr: Dict = {
@@ -1474,6 +1558,14 @@ const tr: Dict = {
   btnDownload: "İndir",
   updateTitle: "Güncelleme",
   updateChangelog: "Değişiklikler",
+  actSidebar: "Kenar çubuğunu aç/kapat",
+  setTextSize: "Yazı boyutu",
+  sizeS: "Küçük",
+  sizeM: "Orta",
+  sizeL: "Büyük",
+  sizeXL: "Çok büyük",
+  untitled: "(Başlıksız)",
+  tImportBadFormat: "Bu bir Cue yedek dosyası değil",
 };
 
 const pl: Dict = {
@@ -1584,6 +1676,14 @@ const pl: Dict = {
   btnDownload: "Pobierz",
   updateTitle: "Aktualizacja",
   updateChangelog: "Lista zmian",
+  actSidebar: "Przełącz panel boczny",
+  setTextSize: "Rozmiar tekstu",
+  sizeS: "Mały",
+  sizeM: "Średni",
+  sizeL: "Duży",
+  sizeXL: "Bardzo duży",
+  untitled: "(Bez tytułu)",
+  tImportBadFormat: "To nie jest plik kopii zapasowej Cue",
 };
 
 const DICTS: Record<Lang, Dict> = {

@@ -39,7 +39,7 @@ export function ItemRow({
   const renaming = useStore((s) => s.renamingItemId === item.id);
   const t = useT();
 
-  const title = displayTitle(item);
+  const title = displayTitle(item) || t("untitled");
   const sub = snippet(item.body);
   const projectName =
     activeProjectId === null

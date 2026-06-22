@@ -65,7 +65,7 @@ export const DEFAULT_SETTINGS: Settings = {
   git_remote: "",
   git_branch: "main",
   accent: "blue",
-  lang: "ja",
+  lang: "en",
   sidebar_collapsed: false,
   text_scale: 1,
 };

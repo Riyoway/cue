@@ -306,7 +306,13 @@ export const useStore = create<CueState>((set, get) => ({
       await get().reloadAll();
       get().toast(tr(get().settings.lang)("tImported"));
     } catch (e) {
-      get().toast(tr(get().settings.lang)("tImportFail", { e: String(e) }), "error");
+      const lang = get().settings.lang;
+      // 不正なバックアップ形式は専用の翻訳メッセージに、それ以外は詳細付きで表示。
+      if (String(e).includes("invalid-cue-backup")) {
+        get().toast(tr(lang)("tImportBadFormat"), "error");
+      } else {
+        get().toast(tr(lang)("tImportFail", { e: String(e) }), "error");
+      }
     }
   },
 

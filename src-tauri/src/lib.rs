@@ -90,16 +90,16 @@ fn apply_shortcuts(
     quicksave: String,
 ) -> Result<(), String> {
     let gs = app.global_shortcut();
-    let new_summon = Shortcut::from_str(&summon).map_err(|e| format!("召喚ショートカットが不正です: {e}"))?;
+    let new_summon = Shortcut::from_str(&summon).map_err(|e| format!("Invalid summon shortcut: {e}"))?;
     let new_quicksave =
-        Shortcut::from_str(&quicksave).map_err(|e| format!("保存ショートカットが不正です: {e}"))?;
+        Shortcut::from_str(&quicksave).map_err(|e| format!("Invalid save shortcut: {e}"))?;
 
     // 既存を全解除してから登録し直す。
     let _ = gs.unregister_all();
     gs.register(new_summon.clone())
-        .map_err(|e| format!("召喚ショートカットを登録できません: {e}"))?;
+        .map_err(|e| format!("Could not register summon shortcut: {e}"))?;
     gs.register(new_quicksave.clone())
-        .map_err(|e| format!("保存ショートカットを登録できません: {e}"))?;
+        .map_err(|e| format!("Could not register save shortcut: {e}"))?;
 
     *state.summon.lock().unwrap() = Some(new_summon);
     *state.quicksave.lock().unwrap() = Some(new_quicksave);
@@ -111,13 +111,13 @@ fn apply_shortcuts(
 /// 選択されたパスへ JSON 文字列を書き出す。
 #[tauri::command]
 fn export_data(path: String, json: String) -> Result<(), String> {
-    std::fs::write(&path, json).map_err(|e| format!("書き出しに失敗: {e}"))
+    std::fs::write(&path, json).map_err(|e| format!("Write failed: {e}"))
 }
 
 /// 選択されたパスから JSON 文字列を読み込む。
 #[tauri::command]
 fn import_data(path: String) -> Result<String, String> {
-    std::fs::read_to_string(&path).map_err(|e| format!("読み込みに失敗: {e}"))
+    std::fs::read_to_string(&path).map_err(|e| format!("Read failed: {e}"))
 }
 
 // ---- Git 同期 ----------------------------------------------------------------
@@ -127,7 +127,7 @@ fn run_git(dir: &Path, args: &[&str]) -> Result<String, String> {
         .current_dir(dir)
         .args(args)
         .output()
-        .map_err(|e| format!("git の実行に失敗（git はインストールされていますか?）: {e}"))?;
+        .map_err(|e| format!("Failed to run git (is git installed?): {e}"))?;
     if out.status.success() {
         Ok(String::from_utf8_lossy(&out.stdout).trim().to_string())
     } else {
@@ -231,7 +231,7 @@ fn git_commit_snapshot(
 ) -> Result<String, String> {
     let dir = sync_dir(&app)?;
     ensure_repo(&dir, &remote, &branch)?;
-    std::fs::write(dir.join("cue.json"), json).map_err(|e| format!("書き出しに失敗: {e}"))?;
+    std::fs::write(dir.join("cue.json"), json).map_err(|e| format!("Write failed: {e}"))?;
     run_git(&dir, &["add", "-A"])?;
     // 変更が無い場合の commit 失敗は無視
     let _ = run_git(&dir, &["commit", "-m", &message]);
@@ -241,7 +241,7 @@ fn git_commit_snapshot(
         let _ = run_git(&dir, &["rebase", "-X", "ours", &format!("origin/{branch}")]);
     }
     run_git(&dir, &["push", "-u", "origin", &branch])
-        .map_err(|e| format!("push に失敗（認証 / プライベートリポジトリ設定を確認してください）: {e}"))?;
+        .map_err(|e| format!("Push failed (check auth / private repo settings): {e}"))?;
     Ok("ok".into())
 }
 
@@ -251,8 +251,8 @@ fn build_tray(app: &AppHandle) -> tauri::Result<()> {
     use tauri::menu::{Menu, MenuItem};
     use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
 
-    let show_i = MenuItem::with_id(app, "show", "Cue を表示", true, None::<&str>)?;
-    let quit_i = MenuItem::with_id(app, "quit", "終了", true, None::<&str>)?;
+    let show_i = MenuItem::with_id(app, "show", "Show Cue", true, None::<&str>)?;
+    let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
 
     let mut builder = TrayIconBuilder::new()

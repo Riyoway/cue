@@ -237,7 +237,8 @@ export async function buildSnapshot(): Promise<Snapshot> {
 /** スナップショットを uid で upsert（アイテムは updated_at が新しい方を採用）。 */
 export async function mergeSnapshot(snap: Snapshot): Promise<void> {
   if (!snap || snap.app !== "cue" || !Array.isArray(snap.items)) {
-    throw new Error("Cue のバックアップ形式ではありません");
+    // 言語非依存のセンチネル。store 側で翻訳メッセージに変換する。
+    throw new Error("invalid-cue-backup");
   }
   const d = await db();
 
