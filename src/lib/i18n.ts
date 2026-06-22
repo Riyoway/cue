@@ -65,6 +65,9 @@ const en: Dict = {
   ctxEdit: "Edit",
   ctxPin: "Pin",
   ctxUnpin: "Unpin",
+  confirmDeleteProjectTitle: "Delete project?",
+  confirmDeleteProjectBody:
+    "“{name}” contains {count} prompt(s). Deleting the project will permanently delete them too.",
   listNoMatch: "No matching items",
   listEmpty: "Nothing yet",
   listAddFirst: "Add your first prompt (Ctrl+N)",
@@ -162,6 +165,9 @@ const ja: Dict = {
   ctxEdit: "編集",
   ctxPin: "ピン留め",
   ctxUnpin: "ピンを外す",
+  confirmDeleteProjectTitle: "プロジェクトを削除しますか？",
+  confirmDeleteProjectBody:
+    "「{name}」には {count} 件のプロンプトがあります。プロジェクトを削除すると、これらのプロンプトも完全に削除されます。",
   listNoMatch: "一致する項目がありません",
   listEmpty: "まだ何もありません",
   listAddFirst: "最初の Prompt を追加 (Ctrl+N)",

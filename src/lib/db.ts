@@ -180,15 +180,13 @@ export async function setProjectPosition(
   ]);
 }
 
-export async function deleteProject(
-  id: number,
-  reassignTo: number,
-): Promise<void> {
+/** プロジェクトを論理削除。中のプロンプトも一緒に論理削除する（同期用に tombstone を残す）。 */
+export async function deleteProject(id: number): Promise<void> {
   const d = await db();
   const now = Date.now();
   await d.execute(
-    "UPDATE items SET project_id = $1, updated_at = $2 WHERE project_id = $3",
-    [reassignTo, now, id],
+    "UPDATE items SET deleted_at = $1, updated_at = $1 WHERE project_id = $2 AND deleted_at IS NULL",
+    [now, id],
   );
   await d.execute("UPDATE projects SET deleted_at = $1 WHERE id = $2", [now, id]);
 }

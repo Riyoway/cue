@@ -74,6 +74,7 @@ interface CueState {
   contextMenu: ContextMenuState | null;
   renamingProjectId: number | null;
   renamingItemId: number | null;
+  pendingProjectDelete: { id: number; name: string; count: number } | null;
 
   init: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -89,6 +90,8 @@ interface CueState {
   addProject: (name: string) => Promise<void>;
   renameProject: (id: number, name: string) => Promise<void>;
   removeProject: (id: number) => Promise<void>;
+  confirmProjectDelete: (id?: number) => Promise<void>;
+  cancelProjectDelete: () => void;
   reorderProject: (
     draggedId: number,
     targetId: number,
@@ -170,6 +173,7 @@ export const useStore = create<CueState>((set, get) => ({
   lastSyncedAt: null,
   isDark: false,
   contextMenu: null,
+  pendingProjectDelete: null,
   renamingProjectId: null,
   renamingItemId: null,
 
@@ -376,18 +380,32 @@ export const useStore = create<CueState>((set, get) => ({
       get().toast(tr(get().settings.lang)("tLastProject"), "error");
       return;
     }
-    const fallback = projects.find((p) => p.id !== id);
-    if (!fallback) return;
-    await dbApi.deleteProject(id, fallback.id);
+    const count = get().items.filter((i) => i.project_id === id).length;
+    // 中にプロンプトがある場合は確認ダイアログを出す。空なら即削除。
+    if (count > 0) {
+      const name = projects.find((p) => p.id === id)?.name ?? "";
+      set({ pendingProjectDelete: { id, name, count }, contextMenu: null });
+      return;
+    }
+    await get().confirmProjectDelete(id);
+  },
+
+  confirmProjectDelete: async (id) => {
+    const targetId = id ?? get().pendingProjectDelete?.id;
+    if (targetId == null) return;
+    await dbApi.deleteProject(targetId);
     const nextProjects = await dbApi.listProjects();
     set((s) => ({
       projects: nextProjects,
       activeProjectId:
-        s.activeProjectId === id ? fallback.id : s.activeProjectId,
+        s.activeProjectId === targetId ? null : s.activeProjectId,
+      pendingProjectDelete: null,
     }));
     await get().refresh();
     get().toast(tr(get().settings.lang)("tProjectDeleted"));
   },
+
+  cancelProjectDelete: () => set({ pendingProjectDelete: null }),
 
   reorderProject: async (draggedId, targetId, below) => {
     if (draggedId === targetId) return;

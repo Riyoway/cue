@@ -10,6 +10,7 @@ import { filterItems } from "./lib/search";
 import { setWindowBackground } from "./lib/tauri";
 import { Header } from "./components/Header";
 import { ContextMenu } from "./components/ContextMenu";
+import { ConfirmDialog } from "./components/ConfirmDialog";
 import { Sidebar } from "./components/Sidebar";
 import { SearchBar } from "./components/SearchBar";
 import { ItemList } from "./components/ItemList";
@@ -199,6 +200,7 @@ export default function App() {
       {editorOpen && <Editor />}
       {settingsOpen && <Settings />}
       <ContextMenu />
+      <ConfirmDialog />
       <Toaster />
     </div>
   );
