@@ -5,7 +5,7 @@ name: Release
 #
 #   Windows x64   : NSIS(.exe) / MSI(.msi) / ポータブル(.exe)
 #   Windows ARM64 : NSIS(.exe) / ポータブル(.exe)
-#   macOS  x64    : .app / .dmg
+#   macOS (univ)  : .app / .dmg (Intel + Apple Silicon)
 #   Linux  x64    : .deb
 #   Linux  ARM64  : .deb / .AppImage
 on:
@@ -33,9 +33,10 @@ jobs:
             target: aarch64-pc-windows-msvc
             bundles: "nsis"
             portable_name: "Cue_portable_arm64.exe"
-          - name: macos-x64
-            runner: macos-13
-            target: x86_64-apple-darwin
+          - name: macos-universal
+            runner: macos-latest
+            target: universal-apple-darwin
+            rust_targets: "aarch64-apple-darwin,x86_64-apple-darwin"
             bundles: "app,dmg"
           - name: linux-x64
             runner: ubuntu-22.04
@@ -75,7 +76,7 @@ jobs:
       - name: Setup Rust
         uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.target }}
+          targets: ${{ matrix.rust_targets || matrix.target }}
 
       - name: Rust cache
         uses: swatinem/rust-cache@v2
