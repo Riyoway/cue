@@ -264,6 +264,9 @@ const zh: Dict = {
   ctxEdit: "编辑",
   ctxPin: "置顶",
   ctxUnpin: "取消置顶",
+  confirmDeleteProjectTitle: "删除项目？",
+  confirmDeleteProjectBody:
+    "“{name}” 中包含 {count} 个 Prompt。删除该项目会将它们一并永久删除。",
   listNoMatch: "没有匹配的项目",
   listEmpty: "还没有内容",
   listAddFirst: "添加第一个 Prompt (Ctrl+N)",
@@ -355,6 +358,9 @@ const ko: Dict = {
   ctxEdit: "편집",
   ctxPin: "고정",
   ctxUnpin: "고정 해제",
+  confirmDeleteProjectTitle: "프로젝트를 삭제할까요?",
+  confirmDeleteProjectBody:
+    "'{name}'에 {count}개의 프롬프트가 있습니다. 프로젝트를 삭제하면 이 프롬프트도 영구적으로 삭제됩니다.",
   listNoMatch: "일치하는 항목이 없습니다",
   listEmpty: "아직 항목이 없습니다",
   listAddFirst: "첫 Prompt 추가 (Ctrl+N)",
@@ -446,6 +452,9 @@ const es: Dict = {
   ctxEdit: "Editar",
   ctxPin: "Fijar",
   ctxUnpin: "Desfijar",
+  confirmDeleteProjectTitle: "¿Eliminar proyecto?",
+  confirmDeleteProjectBody:
+    "«{name}» contiene {count} prompt(s). Al eliminar el proyecto, también se eliminarán de forma permanente.",
   listNoMatch: "No hay elementos que coincidan",
   listEmpty: "Aún no hay nada",
   listAddFirst: "Añade tu primer prompt (Ctrl+N)",
@@ -537,6 +546,9 @@ const fr: Dict = {
   ctxEdit: "Modifier",
   ctxPin: "Épingler",
   ctxUnpin: "Désépingler",
+  confirmDeleteProjectTitle: "Supprimer le projet ?",
+  confirmDeleteProjectBody:
+    "« {name} » contient {count} prompt(s). Supprimer le projet les supprimera aussi définitivement.",
   listNoMatch: "Aucun élément correspondant",
   listEmpty: "Rien pour l’instant",
   listAddFirst: "Ajoutez votre premier prompt (Ctrl+N)",
@@ -628,6 +640,9 @@ const de: Dict = {
   ctxEdit: "Bearbeiten",
   ctxPin: "Anheften",
   ctxUnpin: "Lösen",
+  confirmDeleteProjectTitle: "Projekt löschen?",
+  confirmDeleteProjectBody:
+    "„{name}“ enthält {count} Prompt(s). Beim Löschen des Projekts werden auch diese dauerhaft gelöscht.",
   listNoMatch: "Keine passenden Einträge",
   listEmpty: "Noch nichts vorhanden",
   listAddFirst: "Ersten Prompt hinzufügen (Ctrl+N)",
@@ -719,6 +734,9 @@ const pt: Dict = {
   ctxEdit: "Editar",
   ctxPin: "Fixar",
   ctxUnpin: "Desafixar",
+  confirmDeleteProjectTitle: "Excluir projeto?",
+  confirmDeleteProjectBody:
+    "“{name}” contém {count} prompt(s). Excluir o projeto também os excluirá permanentemente.",
   listNoMatch: "Nenhum item correspondente",
   listEmpty: "Ainda não há nada",
   listAddFirst: "Adicione seu primeiro prompt (Ctrl+N)",
@@ -810,6 +828,9 @@ const it: Dict = {
   ctxEdit: "Modifica",
   ctxPin: "Fissa",
   ctxUnpin: "Sblocca",
+  confirmDeleteProjectTitle: "Eliminare il progetto?",
+  confirmDeleteProjectBody:
+    "«{name}» contiene {count} prompt. Eliminando il progetto verranno eliminati definitivamente anche questi.",
   listNoMatch: "Nessun elemento corrispondente",
   listEmpty: "Ancora niente",
   listAddFirst: "Aggiungi il tuo primo prompt (Ctrl+N)",
@@ -901,6 +922,9 @@ const ru: Dict = {
   ctxEdit: "Редактировать",
   ctxPin: "Закрепить",
   ctxUnpin: "Открепить",
+  confirmDeleteProjectTitle: "Удалить проект?",
+  confirmDeleteProjectBody:
+    "«{name}» содержит промптов: {count}. При удалении проекта они также будут безвозвратно удалены.",
   listNoMatch: "Нет совпадений",
   listEmpty: "Пока пусто",
   listAddFirst: "Добавьте первый промпт (Ctrl+N)",
@@ -992,6 +1016,9 @@ const id: Dict = {
   ctxEdit: "Edit",
   ctxPin: "Sematkan",
   ctxUnpin: "Lepas sematan",
+  confirmDeleteProjectTitle: "Hapus proyek?",
+  confirmDeleteProjectBody:
+    "“{name}” berisi {count} prompt. Menghapus proyek juga akan menghapusnya secara permanen.",
   listNoMatch: "Tidak ada item yang cocok",
   listEmpty: "Belum ada apa-apa",
   listAddFirst: "Tambahkan prompt pertama (Ctrl+N)",
@@ -1083,6 +1110,9 @@ const vi: Dict = {
   ctxEdit: "Chỉnh sửa",
   ctxPin: "Ghim",
   ctxUnpin: "Bỏ ghim",
+  confirmDeleteProjectTitle: "Xóa dự án?",
+  confirmDeleteProjectBody:
+    "“{name}” chứa {count} prompt. Xóa dự án cũng sẽ xóa vĩnh viễn chúng.",
   listNoMatch: "Không có mục phù hợp",
   listEmpty: "Chưa có gì",
   listAddFirst: "Thêm prompt đầu tiên (Ctrl+N)",
@@ -1174,6 +1204,9 @@ const tr: Dict = {
   ctxEdit: "Düzenle",
   ctxPin: "Sabitle",
   ctxUnpin: "Sabitlemeyi kaldır",
+  confirmDeleteProjectTitle: "Proje silinsin mi?",
+  confirmDeleteProjectBody:
+    "“{name}” {count} prompt içeriyor. Projeyi silmek bunları da kalıcı olarak siler.",
   listNoMatch: "Eşleşen öğe yok",
   listEmpty: "Henüz bir şey yok",
   listAddFirst: "İlk prompt'unu ekle (Ctrl+N)",
@@ -1265,6 +1298,9 @@ const pl: Dict = {
   ctxEdit: "Edytuj",
   ctxPin: "Przypnij",
   ctxUnpin: "Odepnij",
+  confirmDeleteProjectTitle: "Usunąć projekt?",
+  confirmDeleteProjectBody:
+    "„{name}” zawiera {count} promptów. Usunięcie projektu trwale usunie również je.",
   listNoMatch: "Brak pasujących elementów",
   listEmpty: "Jeszcze nic nie ma",
   listAddFirst: "Dodaj pierwszy prompt (Ctrl+N)",
