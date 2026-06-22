@@ -348,3 +348,21 @@ export async function setSetting(key: string, value: string): Promise<void> {
     [key, value],
   );
 }
+
+// ---- 完全リセット -----------------------------------------------------------
+
+/**
+ * 全データ（プロンプト・プロジェクト・設定）を物理削除し、初回起動と同じ
+ * 既定 Inbox を作り直す。完全リセット用。論理削除ではないので tombstone は残らない
+ * （設定も消えるため git 同期も無効化され、データが復活することはない）。
+ */
+export async function eraseAllData(): Promise<void> {
+  const d = await db();
+  await d.execute("DELETE FROM items");
+  await d.execute("DELETE FROM projects");
+  await d.execute("DELETE FROM settings");
+  await d.execute(
+    "INSERT INTO projects (uid, name, position, created_at, deleted_at) VALUES ($1, 'Inbox', 0, $2, NULL)",
+    [uuid(), Date.now()],
+  );
+}

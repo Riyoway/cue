@@ -1,5 +1,5 @@
 import { type KeyboardEvent, type ReactNode, useEffect, useState } from "react";
-import { Check, Download, RefreshCw, TriangleAlert, Upload, X } from "lucide-react";
+import { Check, Download, RefreshCw, Trash2, TriangleAlert, Upload, X } from "lucide-react";
 import { useStore } from "../store";
 import { gitAvailable, quitApp } from "../lib/tauri";
 import { handleHeaderMouseDown } from "../lib/drag";
@@ -157,6 +157,7 @@ export function Settings() {
   const syncNow = useStore((s) => s.syncNow);
   const syncing = useStore((s) => s.syncing);
   const lastSyncedAt = useStore((s) => s.lastSyncedAt);
+  const requestDataErase = useStore((s) => s.requestDataErase);
   const t = useT();
 
   const [draft, setDraft] = useState<SettingsType>(settings);
@@ -179,6 +180,8 @@ export function Settings() {
     "h-9 w-full rounded-lg border border-zinc-300 bg-transparent px-2.5 text-[12px] text-zinc-800 outline-none transition-colors focus-visible:border-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/40 dark:border-zinc-700 dark:text-zinc-100";
   const secondaryBtn =
     "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-zinc-300 px-2.5 py-1.5 text-[12px] font-medium text-zinc-700 outline-none transition duration-150 hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-accent-500/40 active:scale-95 dark:border-zinc-700 dark:text-zinc-200 dark:hover:bg-zinc-800";
+  const dangerBtn =
+    "inline-flex cursor-pointer items-center gap-1.5 rounded-lg border border-red-300 px-2.5 py-1.5 text-[12px] font-medium text-red-600 outline-none transition duration-150 hover:bg-red-50 focus-visible:ring-2 focus-visible:ring-red-500/40 active:scale-95 dark:border-red-900/60 dark:text-red-400 dark:hover:bg-red-950/40";
 
   return (
     <div className="cue-overlay-in absolute inset-0 z-30 flex flex-col bg-white dark:bg-zinc-900">
@@ -357,6 +360,15 @@ export function Settings() {
               </p>
             </div>
           )}
+        </Section>
+
+        <Section title={t("setData")}>
+          <Row label={t("setEraseAll")} desc={t("setEraseAllDesc")}>
+            <button type="button" onClick={() => requestDataErase()} className={dangerBtn}>
+              <Trash2 size={14} aria-hidden />
+              {t("btnErase")}
+            </button>
+          </Row>
         </Section>
       </div>
 

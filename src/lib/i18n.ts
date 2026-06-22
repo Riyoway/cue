@@ -135,6 +135,15 @@ const en: Dict = {
   tShortcutFail: "Failed to register shortcut: {e}",
   tAutostartFail: "Failed to set autostart: {e}",
   tAotFail: "Failed to toggle always-on-top: {e}",
+  setData: "Data",
+  setEraseAll: "Erase all data",
+  setEraseAllDesc:
+    "Delete all prompts, projects, and settings, resetting to the initial state",
+  btnErase: "Erase",
+  confirmEraseTitle: "Erase all data?",
+  confirmEraseBody:
+    "All prompts, projects, and settings will be permanently deleted and the app reset to its initial state. This cannot be undone.",
+  tDataErased: "All data erased",
 };
 
 const ja: Dict = {
@@ -235,6 +244,14 @@ const ja: Dict = {
   tShortcutFail: "ショートカット登録に失敗: {e}",
   tAutostartFail: "自動起動の設定に失敗: {e}",
   tAotFail: "常駐切替に失敗: {e}",
+  setData: "データ",
+  setEraseAll: "すべてのデータを消去",
+  setEraseAllDesc: "全プロンプト・プロジェクト・設定を削除して初期状態に戻します",
+  btnErase: "消去",
+  confirmEraseTitle: "すべてのデータを消去しますか？",
+  confirmEraseBody:
+    "すべてのプロンプト・プロジェクト・設定を完全に削除し、アプリを初期状態に戻します。この操作は元に戻せません。",
+  tDataErased: "すべてのデータを消去しました",
 };
 
 const zh: Dict = {
@@ -329,6 +346,14 @@ const zh: Dict = {
   tShortcutFail: "快捷键注册失败：{e}",
   tAutostartFail: "自动启动设置失败：{e}",
   tAotFail: "置顶切换失败：{e}",
+  setData: "数据",
+  setEraseAll: "清除所有数据",
+  setEraseAllDesc: "删除所有 Prompt、项目和设置，恢复到初始状态",
+  btnErase: "清除",
+  confirmEraseTitle: "清除所有数据？",
+  confirmEraseBody:
+    "将永久删除所有 Prompt、项目和设置，并将应用重置为初始状态。此操作无法撤销。",
+  tDataErased: "已清除所有数据",
 };
 
 const ko: Dict = {
@@ -423,6 +448,14 @@ const ko: Dict = {
   tShortcutFail: "단축키 등록 실패: {e}",
   tAutostartFail: "자동 시작 설정 실패: {e}",
   tAotFail: "항상 위 전환 실패: {e}",
+  setData: "데이터",
+  setEraseAll: "모든 데이터 지우기",
+  setEraseAllDesc: "모든 프롬프트, 프로젝트, 설정을 삭제하고 초기 상태로 되돌립니다",
+  btnErase: "지우기",
+  confirmEraseTitle: "모든 데이터를 지울까요?",
+  confirmEraseBody:
+    "모든 프롬프트, 프로젝트, 설정이 영구적으로 삭제되고 앱이 초기 상태로 돌아갑니다. 이 작업은 되돌릴 수 없습니다.",
+  tDataErased: "모든 데이터를 지웠습니다",
 };
 
 const es: Dict = {
@@ -517,6 +550,15 @@ const es: Dict = {
   tShortcutFail: "No se pudo registrar el atajo: {e}",
   tAutostartFail: "No se pudo configurar el autoarranque: {e}",
   tAotFail: "No se pudo cambiar siempre al frente: {e}",
+  setData: "Datos",
+  setEraseAll: "Borrar todos los datos",
+  setEraseAllDesc:
+    "Elimina todos los prompts, proyectos y ajustes, restableciendo el estado inicial",
+  btnErase: "Borrar",
+  confirmEraseTitle: "¿Borrar todos los datos?",
+  confirmEraseBody:
+    "Se eliminarán de forma permanente todos los prompts, proyectos y ajustes, y la aplicación volverá a su estado inicial. Esta acción no se puede deshacer.",
+  tDataErased: "Todos los datos borrados",
 };
 
 const fr: Dict = {
@@ -611,6 +653,15 @@ const fr: Dict = {
   tShortcutFail: "Échec d’enregistrement du raccourci : {e}",
   tAutostartFail: "Échec du démarrage auto : {e}",
   tAotFail: "Échec du basculement premier plan : {e}",
+  setData: "Données",
+  setEraseAll: "Effacer toutes les données",
+  setEraseAllDesc:
+    "Supprime tous les prompts, projets et paramètres et rétablit l’état initial",
+  btnErase: "Effacer",
+  confirmEraseTitle: "Effacer toutes les données ?",
+  confirmEraseBody:
+    "Tous les prompts, projets et paramètres seront définitivement supprimés et l’application réinitialisée à son état initial. Cette action est irréversible.",
+  tDataErased: "Toutes les données effacées",
 };
 
 const de: Dict = {
@@ -705,6 +756,15 @@ const de: Dict = {
   tShortcutFail: "Tastenkürzel konnte nicht registriert werden: {e}",
   tAutostartFail: "Autostart konnte nicht gesetzt werden: {e}",
   tAotFail: "Vordergrund konnte nicht umgeschaltet werden: {e}",
+  setData: "Daten",
+  setEraseAll: "Alle Daten löschen",
+  setEraseAllDesc:
+    "Löscht alle Prompts, Projekte und Einstellungen und setzt auf den Ausgangszustand zurück",
+  btnErase: "Löschen",
+  confirmEraseTitle: "Alle Daten löschen?",
+  confirmEraseBody:
+    "Alle Prompts, Projekte und Einstellungen werden dauerhaft gelöscht und die App auf den Ausgangszustand zurückgesetzt. Dies kann nicht rückgängig gemacht werden.",
+  tDataErased: "Alle Daten gelöscht",
 };
 
 const pt: Dict = {
@@ -799,6 +859,15 @@ const pt: Dict = {
   tShortcutFail: "Falha ao registrar atalho: {e}",
   tAutostartFail: "Falha ao definir início automático: {e}",
   tAotFail: "Falha ao alternar sempre no topo: {e}",
+  setData: "Dados",
+  setEraseAll: "Apagar todos os dados",
+  setEraseAllDesc:
+    "Exclui todos os prompts, projetos e configurações, voltando ao estado inicial",
+  btnErase: "Apagar",
+  confirmEraseTitle: "Apagar todos os dados?",
+  confirmEraseBody:
+    "Todos os prompts, projetos e configurações serão excluídos permanentemente e o app voltará ao estado inicial. Esta ação não pode ser desfeita.",
+  tDataErased: "Todos os dados apagados",
 };
 
 const it: Dict = {
@@ -893,6 +962,15 @@ const it: Dict = {
   tShortcutFail: "Registrazione scorciatoia non riuscita: {e}",
   tAutostartFail: "Impostazione avvio automatico non riuscita: {e}",
   tAotFail: "Cambio primo piano non riuscito: {e}",
+  setData: "Dati",
+  setEraseAll: "Cancella tutti i dati",
+  setEraseAllDesc:
+    "Elimina tutti i prompt, progetti e impostazioni, ripristinando lo stato iniziale",
+  btnErase: "Cancella",
+  confirmEraseTitle: "Cancellare tutti i dati?",
+  confirmEraseBody:
+    "Tutti i prompt, i progetti e le impostazioni verranno eliminati definitivamente e l’app verrà ripristinata allo stato iniziale. Questa azione non può essere annullata.",
+  tDataErased: "Tutti i dati cancellati",
 };
 
 const ru: Dict = {
@@ -987,6 +1065,15 @@ const ru: Dict = {
   tShortcutFail: "Не удалось зарегистрировать сочетание: {e}",
   tAutostartFail: "Не удалось настроить автозапуск: {e}",
   tAotFail: "Не удалось переключить «поверх окон»: {e}",
+  setData: "Данные",
+  setEraseAll: "Удалить все данные",
+  setEraseAllDesc:
+    "Удаляет все промпты, проекты и настройки и возвращает к начальному состоянию",
+  btnErase: "Удалить",
+  confirmEraseTitle: "Удалить все данные?",
+  confirmEraseBody:
+    "Все промпты, проекты и настройки будут безвозвратно удалены, а приложение вернётся к начальному состоянию. Это действие нельзя отменить.",
+  tDataErased: "Все данные удалены",
 };
 
 const id: Dict = {
@@ -1081,6 +1168,15 @@ const id: Dict = {
   tShortcutFail: "Gagal mendaftarkan pintasan: {e}",
   tAutostartFail: "Gagal menyetel mulai otomatis: {e}",
   tAotFail: "Gagal mengalihkan selalu di atas: {e}",
+  setData: "Data",
+  setEraseAll: "Hapus semua data",
+  setEraseAllDesc:
+    "Menghapus semua prompt, proyek, dan pengaturan, kembali ke keadaan awal",
+  btnErase: "Hapus",
+  confirmEraseTitle: "Hapus semua data?",
+  confirmEraseBody:
+    "Semua prompt, proyek, dan pengaturan akan dihapus secara permanen dan aplikasi dikembalikan ke keadaan awal. Tindakan ini tidak dapat dibatalkan.",
+  tDataErased: "Semua data dihapus",
 };
 
 const vi: Dict = {
@@ -1175,6 +1271,15 @@ const vi: Dict = {
   tShortcutFail: "Đăng ký phím tắt thất bại: {e}",
   tAutostartFail: "Đặt tự khởi động thất bại: {e}",
   tAotFail: "Chuyển luôn trên cùng thất bại: {e}",
+  setData: "Dữ liệu",
+  setEraseAll: "Xóa toàn bộ dữ liệu",
+  setEraseAllDesc:
+    "Xóa tất cả prompt, dự án và cài đặt, trở về trạng thái ban đầu",
+  btnErase: "Xóa",
+  confirmEraseTitle: "Xóa toàn bộ dữ liệu?",
+  confirmEraseBody:
+    "Tất cả prompt, dự án và cài đặt sẽ bị xóa vĩnh viễn và ứng dụng trở về trạng thái ban đầu. Không thể hoàn tác thao tác này.",
+  tDataErased: "Đã xóa toàn bộ dữ liệu",
 };
 
 const tr: Dict = {
@@ -1269,6 +1374,15 @@ const tr: Dict = {
   tShortcutFail: "Kısayol kaydedilemedi: {e}",
   tAutostartFail: "Otomatik başlatma ayarlanamadı: {e}",
   tAotFail: "Her zaman üstte değiştirilemedi: {e}",
+  setData: "Veriler",
+  setEraseAll: "Tüm verileri sil",
+  setEraseAllDesc:
+    "Tüm promptları, projeleri ve ayarları siler ve başlangıç durumuna sıfırlar",
+  btnErase: "Sil",
+  confirmEraseTitle: "Tüm veriler silinsin mi?",
+  confirmEraseBody:
+    "Tüm promptlar, projeler ve ayarlar kalıcı olarak silinecek ve uygulama başlangıç durumuna sıfırlanacak. Bu işlem geri alınamaz.",
+  tDataErased: "Tüm veriler silindi",
 };
 
 const pl: Dict = {
@@ -1363,6 +1477,15 @@ const pl: Dict = {
   tShortcutFail: "Nie udało się zarejestrować skrótu: {e}",
   tAutostartFail: "Nie udało się ustawić autostartu: {e}",
   tAotFail: "Nie udało się przełączyć zawsze na wierzchu: {e}",
+  setData: "Dane",
+  setEraseAll: "Usuń wszystkie dane",
+  setEraseAllDesc:
+    "Usuwa wszystkie prompty, projekty i ustawienia, przywracając stan początkowy",
+  btnErase: "Usuń",
+  confirmEraseTitle: "Usunąć wszystkie dane?",
+  confirmEraseBody:
+    "Wszystkie prompty, projekty i ustawienia zostaną trwale usunięte, a aplikacja wróci do stanu początkowego. Tej operacji nie można cofnąć.",
+  tDataErased: "Usunięto wszystkie dane",
 };
 
 const DICTS: Record<Lang, Dict> = {

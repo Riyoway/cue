@@ -99,6 +99,9 @@ export default function App() {
     const onKey = (e: KeyboardEvent) => {
       const s = useStore.getState();
 
+      // 確認モーダル表示中はモーダル側に任せる（Escape の二重処理を防ぐ）。
+      if (s.pendingProjectDelete || s.pendingDataErase) return;
+
       if (s.settingsOpen) {
         if (e.key === "Escape") {
           e.preventDefault();

@@ -75,6 +75,7 @@ interface CueState {
   renamingProjectId: number | null;
   renamingItemId: number | null;
   pendingProjectDelete: { id: number; name: string; count: number } | null;
+  pendingDataErase: boolean;
 
   init: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -92,6 +93,9 @@ interface CueState {
   removeProject: (id: number) => Promise<void>;
   confirmProjectDelete: (id?: number) => Promise<void>;
   cancelProjectDelete: () => void;
+  requestDataErase: () => void;
+  confirmDataErase: () => Promise<void>;
+  cancelDataErase: () => void;
   reorderProject: (
     draggedId: number,
     targetId: number,
@@ -174,6 +178,7 @@ export const useStore = create<CueState>((set, get) => ({
   isDark: false,
   contextMenu: null,
   pendingProjectDelete: null,
+  pendingDataErase: false,
   renamingProjectId: null,
   renamingItemId: null,
 
@@ -406,6 +411,61 @@ export const useStore = create<CueState>((set, get) => ({
   },
 
   cancelProjectDelete: () => set({ pendingProjectDelete: null }),
+
+  requestDataErase: () => set({ pendingDataErase: true }),
+  cancelDataErase: () => set({ pendingDataErase: false }),
+
+  confirmDataErase: async () => {
+    await dbApi.eraseAllData();
+
+    // 設定を既定値へ。言語のみ OS から再検出（初回起動と同じ挙動）。
+    const lang = detectLang();
+    const settings: Settings = { ...DEFAULT_SETTINGS, lang };
+    await dbApi.setSetting("lang", lang);
+
+    // ランタイム副作用（テーマ / 常駐 / ショートカット / 自動起動）も既定へ戻す。
+    const dark = applyTheme(settings.theme);
+    applyAccent(settings.accent);
+    applyTextScale(settings.text_scale);
+    try {
+      await setWindowAlwaysOnTop(settings.always_on_top_default);
+    } catch {
+      /* noop */
+    }
+    try {
+      await applyShortcuts(settings.summon_shortcut, settings.quicksave_shortcut);
+    } catch (e) {
+      get().toast(tr(lang)("tShortcutFail", { e: String(e) }), "error");
+    }
+    try {
+      if (await isAutostartEnabled()) await disableAutostart();
+    } catch {
+      /* noop */
+    }
+
+    const [items, projects] = await Promise.all([
+      dbApi.listItems(),
+      dbApi.listProjects(),
+    ]);
+
+    set({
+      settings,
+      items,
+      projects,
+      activeProjectId: projects[0]?.id ?? null,
+      selectedId: null,
+      query: "",
+      editor: null,
+      previewMode: false,
+      isDark: dark,
+      windowPinned: settings.always_on_top_default,
+      lastSyncedAt: null,
+      pendingDataErase: false,
+      pendingProjectDelete: null,
+      settingsOpen: false,
+    });
+    get().toast(tr(lang)("tDataErased"));
+  },
 
   reorderProject: async (draggedId, targetId, below) => {
     if (draggedId === targetId) return;
