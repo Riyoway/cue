@@ -4,8 +4,6 @@
 
 <h1 align="center">Cue</h1>
 
----
-
 <p align="center">
   AIへの指示を保存し、検索してすぐ再利用できる。
 </p>
@@ -28,6 +26,8 @@
 <p align="center">
   <img src="docs/screenshot.png" width="720" alt="Cue スクリーンショット" />
 </p>
+
+---
 
 Cueは、Claude Code / Codex / ChatGPTなどのAIに投げるプロンプトを保存して使い回すためのデスクトップアプリです。ショートカットで保存し、あとから検索して、クリックでコピーします。
 
