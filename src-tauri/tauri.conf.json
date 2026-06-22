@@ -1,0 +1,71 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Cue",
+  "version": "0.1.0",
+  "identifier": "com.cue.app",
+  "build": {
+    "beforeDevCommand": "pnpm dev",
+    "devUrl": "http://localhost:1420",
+    "beforeBuildCommand": "pnpm build",
+    "frontendDist": "../dist"
+  },
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Cue",
+        "width": 720,
+        "height": 540,
+        "minWidth": 380,
+        "minHeight": 320,
+        "resizable": true,
+        "minimizable": true,
+        "decorations": false,
+        "transparent": false,
+        "center": true,
+        "skipTaskbar": false,
+        "alwaysOnTop": false,
+        "visible": true,
+        "shadow": true,
+        "backgroundColor": "#18181b",
+        "dragDropEnabled": false
+      }
+    ],
+    "security": {
+      "csp": null
+    }
+  },
+  "plugins": {
+    "sql": {
+      "preload": ["sqlite:cue.db"]
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": "all",
+    "category": "Productivity",
+    "copyright": "© 2026 Riyoway",
+    "shortDescription": "Save AI prompts, search them, and reuse them instantly.",
+    "longDescription": "Cue is a desktop app for saving and reusing the prompts you send to AI tools like Claude Code, Codex, and ChatGPT. Save a prompt with a hotkey, search for it later, and click it to copy. Markdown notes, projects, global hotkeys, and private Git sync.",
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "macOS": {
+      "minimumSystemVersion": "10.15"
+    },
+    "linux": {
+      "deb": {
+        "depends": []
+      }
+    },
+    "windows": {
+      "nsis": {
+        "installMode": "currentUser"
+      }
+    }
+  }
+}

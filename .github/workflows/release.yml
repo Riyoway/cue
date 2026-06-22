@@ -1,0 +1,130 @@
+name: Release
+
+# タグ (vX.Y.Z) を push すると、各プラットフォーム/アーキ向けに
+# 配布物をビルドして GitHub Release（下書き）へ添付します。
+#
+#   Windows x64   : NSIS(.exe) / MSI(.msi) / ポータブル(.exe)
+#   Windows ARM64 : NSIS(.exe) / ポータブル(.exe) / MSIX(.msix, Store提出用)
+#   macOS  x64    : .app / .dmg
+#   Linux  x64    : .deb
+#   Linux  ARM64  : .deb / .AppImage
+on:
+  push:
+    tags:
+      - "v*"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: windows-x64
+            runner: windows-latest
+            target: x86_64-pc-windows-msvc
+            bundles: "nsis,msi"
+            portable_name: "Cue_portable_x64.exe"
+          - name: windows-arm64
+            runner: windows-latest
+            target: aarch64-pc-windows-msvc
+            bundles: "nsis"
+            portable_name: "Cue_portable_arm64.exe"
+            msix: true
+          - name: macos-x64
+            runner: macos-13
+            target: x86_64-apple-darwin
+            bundles: "app,dmg"
+          - name: linux-x64
+            runner: ubuntu-22.04
+            target: x86_64-unknown-linux-gnu
+            bundles: "deb"
+          - name: linux-arm64
+            runner: ubuntu-22.04-arm
+            target: aarch64-unknown-linux-gnu
+            bundles: "deb,appimage"
+
+    runs-on: ${{ matrix.runner }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux dependencies
+        if: startsWith(matrix.runner, 'ubuntu')
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libappindicator3-dev \
+            librsvg2-dev \
+            patchelf \
+            libxdo-dev \
+            build-essential \
+            curl wget file libssl-dev
+
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: lts/*
+          cache: pnpm
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Rust cache
+        uses: swatinem/rust-cache@v2
+        with:
+          workspaces: ./src-tauri -> target
+          key: ${{ matrix.target }}
+
+      - name: Install frontend dependencies
+        run: pnpm install
+
+      - name: Build & upload bundles
+        uses: tauri-apps/tauri-action@v0
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tagName: ${{ github.ref_name }}
+          releaseName: "Cue ${{ github.ref_name }}"
+          releaseDraft: true
+          prerelease: false
+          args: --target ${{ matrix.target }} --bundles ${{ matrix.bundles }}
+
+      # ---- ポータブル版（インストーラ不要の単体 exe） ----
+      - name: Upload portable executable
+        if: ${{ matrix.portable_name != '' && startsWith(github.ref, 'refs/tags/') }}
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          Copy-Item "src-tauri/target/${{ matrix.target }}/release/cue.exe" "${{ matrix.portable_name }}"
+          gh release upload ${{ github.ref_name }} "${{ matrix.portable_name }}" --clobber
+
+      # ---- Microsoft Store 提出用 MSIX（要 Identity/署名の設定） ----
+      - name: Build & upload MSIX
+        if: ${{ matrix.msix && startsWith(github.ref, 'refs/tags/') }}
+        shell: pwsh
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          $ErrorActionPreference = "Stop"
+          $stage = "msix-stage"
+          New-Item -ItemType Directory -Force "$stage/Assets" | Out-Null
+          Copy-Item "src-tauri/target/${{ matrix.target }}/release/cue.exe" "$stage/cue.exe"
+          Copy-Item "src-tauri/icons/Square*Logo.png" "$stage/Assets/"
+          Copy-Item "src-tauri/icons/StoreLogo.png" "$stage/Assets/"
+          Copy-Item "src-tauri/msix/AppxManifest.xml" "$stage/AppxManifest.xml"
+          $sdkBin = Get-ChildItem "C:/Program Files (x86)/Windows Kits/10/bin" -Directory |
+            Where-Object { Test-Path (Join-Path $_.FullName 'x64/makeappx.exe') } |
+            Sort-Object Name -Descending | Select-Object -First 1
+          $makeappx = Join-Path $sdkBin.FullName 'x64/makeappx.exe'
+          & $makeappx pack /d "$stage" /p "Cue_arm64.msix" /o
+          gh release upload ${{ github.ref_name }} "Cue_arm64.msix" --clobber

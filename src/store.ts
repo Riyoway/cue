@@ -1,0 +1,625 @@
+import type { ReactNode } from "react";
+import { create } from "zustand";
+import {
+  disable as disableAutostart,
+  enable as enableAutostart,
+  isEnabled as isAutostartEnabled,
+} from "@tauri-apps/plugin-autostart";
+import {
+  DEFAULT_SETTINGS,
+  type Item,
+  type Project,
+  type Settings,
+  type ThemeMode,
+} from "./types";
+import * as dbApi from "./lib/db";
+import { type Lang, detectLang, makeTranslate } from "./lib/i18n";
+import {
+  applyShortcuts,
+  copyToClipboard,
+  exportData,
+  gitAvailable,
+  gitCommitSnapshot,
+  gitRemoteSnapshot,
+  importData,
+  openDialog,
+  readClipboard,
+  saveDialog,
+  setWebviewZoom,
+  setWindowAlwaysOnTop,
+  setWindowBackground,
+} from "./lib/tauri";
+
+export interface EditorDraft {
+  id: number | null; // null = 新規
+  title: string;
+  body: string;
+}
+
+export interface ContextMenuItem {
+  label: string;
+  icon?: ReactNode;
+  danger?: boolean;
+  onSelect: () => void;
+}
+
+export interface ContextMenuState {
+  x: number;
+  y: number;
+  items: ContextMenuItem[];
+}
+
+interface Toast {
+  id: number;
+  message: string;
+  kind: "info" | "error";
+}
+
+interface CueState {
+  ready: boolean;
+  items: Item[];
+  projects: Project[];
+  activeProjectId: number | null; // null = すべて
+  query: string;
+  selectedId: number | null;
+  editor: EditorDraft | null;
+  previewMode: boolean;
+  settingsOpen: boolean;
+  settings: Settings;
+  windowPinned: boolean;
+  toasts: Toast[];
+  syncing: boolean;
+  lastSyncedAt: number | null;
+  isDark: boolean;
+  contextMenu: ContextMenuState | null;
+  renamingProjectId: number | null;
+  renamingItemId: number | null;
+
+  init: () => Promise<void>;
+  refresh: () => Promise<void>;
+  reloadAll: () => Promise<void>;
+  exportToFile: () => Promise<void>;
+  importFromFile: () => Promise<void>;
+  setGitConfig: (remote: string, branch: string, enabled: boolean) => Promise<void>;
+  syncNow: () => Promise<void>;
+  setQuery: (q: string) => void;
+  select: (id: number | null) => void;
+
+  setActiveProject: (id: number | null) => void;
+  addProject: (name: string) => Promise<void>;
+  renameProject: (id: number, name: string) => Promise<void>;
+  removeProject: (id: number) => Promise<void>;
+  reorderProject: (
+    draggedId: number,
+    targetId: number,
+    below: boolean,
+  ) => Promise<void>;
+
+  openContextMenu: (x: number, y: number, items: ContextMenuItem[]) => void;
+  closeContextMenu: () => void;
+  startRenameProject: (id: number | null) => void;
+  startRenameItem: (id: number | null) => void;
+  renameItem: (id: number, title: string) => Promise<void>;
+
+  copyItem: (item: Item) => Promise<void>;
+  quickSaveFromClipboard: () => Promise<void>;
+
+  newItem: () => void;
+  editItem: (item: Item) => void;
+  previewItem: (item: Item) => void;
+  updateDraft: (partial: Partial<EditorDraft>) => void;
+  saveDraft: () => Promise<void>;
+  closeEditor: () => void;
+  togglePreview: () => void;
+
+  removeItem: (id: number) => Promise<void>;
+  togglePin: (item: Item) => Promise<void>;
+  reorder: (draggedId: number, targetId: number, below: boolean) => Promise<void>;
+
+  openSettings: () => void;
+  closeSettings: () => void;
+  saveSettings: (next: Settings) => Promise<void>;
+  setTheme: (theme: ThemeMode) => Promise<void>;
+  setAccent: (accent: string) => Promise<void>;
+  setLang: (lang: string) => Promise<void>;
+  toggleSidebar: () => Promise<void>;
+
+  setWindowPinned: (value: boolean) => Promise<void>;
+
+  toast: (message: string, kind?: "info" | "error") => void;
+  removeToast: (id: number) => void;
+}
+
+let toastSeq = 1;
+
+function applyTheme(theme: ThemeMode): boolean {
+  const dark =
+    theme === "dark" ||
+    (theme === "system" &&
+      window.matchMedia("(prefers-color-scheme: dark)").matches);
+  document.documentElement.classList.toggle("dark", dark);
+  void setWindowBackground(dark);
+  return dark;
+}
+
+function applyAccent(accent: string) {
+  document.documentElement.setAttribute("data-accent", accent);
+}
+
+function applyTextScale(scale: number) {
+  void setWebviewZoom(scale || 1);
+}
+
+/** 現在の言語に紐づく翻訳関数（store 内トースト用）。 */
+const tr = (lang: string) => makeTranslate(lang as Lang);
+
+export const useStore = create<CueState>((set, get) => ({
+  ready: false,
+  items: [],
+  projects: [],
+  activeProjectId: null,
+  query: "",
+  selectedId: null,
+  editor: null,
+  previewMode: false,
+  settingsOpen: false,
+  settings: DEFAULT_SETTINGS,
+  windowPinned: false,
+  toasts: [],
+  syncing: false,
+  lastSyncedAt: null,
+  isDark: false,
+  contextMenu: null,
+  renamingProjectId: null,
+  renamingItemId: null,
+
+  init: async () => {
+    const settings = await dbApi.getSettings();
+    if (!settings.lang) {
+      settings.lang = detectLang();
+      await dbApi.setSetting("lang", settings.lang);
+    }
+    const dark = applyTheme(settings.theme);
+    applyAccent(settings.accent);
+    applyTextScale(settings.text_scale);
+    const [items, projects] = await Promise.all([
+      dbApi.listItems(),
+      dbApi.listProjects(),
+    ]);
+    const activeProjectId = projects[0]?.id ?? null;
+    const firstVisible =
+      items.find((i) => i.project_id === activeProjectId) ?? items[0];
+
+    set({
+      settings,
+      items,
+      projects,
+      activeProjectId,
+      selectedId: firstVisible?.id ?? null,
+      windowPinned: settings.always_on_top_default,
+      isDark: dark,
+      ready: true,
+    });
+
+    // ウィンドウ常駐 / ショートカット / 自動起動を設定値に同期
+    try {
+      await setWindowAlwaysOnTop(settings.always_on_top_default);
+    } catch {
+      /* noop */
+    }
+    try {
+      await applyShortcuts(
+        settings.summon_shortcut,
+        settings.quicksave_shortcut,
+      );
+    } catch (e) {
+      get().toast(tr(get().settings.lang)("tShortcutFail", { e: String(e) }), "error");
+    }
+    try {
+      const enabled = await isAutostartEnabled();
+      if (enabled !== settings.autostart) {
+        if (settings.autostart) await enableAutostart();
+        else await disableAutostart();
+      }
+    } catch {
+      /* noop */
+    }
+  },
+
+  refresh: async () => {
+    const items = await dbApi.listItems();
+    set((s) => ({
+      items,
+      selectedId:
+        s.selectedId && items.some((i) => i.id === s.selectedId)
+          ? s.selectedId
+          : (items[0]?.id ?? null),
+    }));
+  },
+
+  reloadAll: async () => {
+    const [items, projects] = await Promise.all([
+      dbApi.listItems(),
+      dbApi.listProjects(),
+    ]);
+    set((s) => ({
+      items,
+      projects,
+      activeProjectId:
+        s.activeProjectId === null ||
+        projects.some((p) => p.id === s.activeProjectId)
+          ? s.activeProjectId
+          : (projects[0]?.id ?? null),
+    }));
+  },
+
+  exportToFile: async () => {
+    const snap = await dbApi.buildSnapshot();
+    const json = JSON.stringify(snap, null, 2);
+    const date = new Date().toISOString().slice(0, 10);
+    const path = await saveDialog(`cue-backup-${date}.json`);
+    if (!path) return;
+    try {
+      await exportData(path, json);
+      get().toast(tr(get().settings.lang)("tExported"));
+    } catch (e) {
+      get().toast(tr(get().settings.lang)("tExportFail", { e: String(e) }), "error");
+    }
+  },
+
+  importFromFile: async () => {
+    const path = await openDialog();
+    if (!path || Array.isArray(path)) return;
+    try {
+      const json = await importData(path);
+      await dbApi.mergeSnapshot(JSON.parse(json));
+      await get().reloadAll();
+      get().toast(tr(get().settings.lang)("tImported"));
+    } catch (e) {
+      get().toast(tr(get().settings.lang)("tImportFail", { e: String(e) }), "error");
+    }
+  },
+
+  setGitConfig: async (remote, branch, enabled) => {
+    const r = remote.trim();
+    const b = branch.trim() || "main";
+    await dbApi.setSetting("git_remote", r);
+    await dbApi.setSetting("git_branch", b);
+    await dbApi.setSetting("git_enabled", enabled ? "1" : "0");
+    set((s) => ({
+      settings: {
+        ...s.settings,
+        git_remote: r,
+        git_branch: b,
+        git_enabled: enabled,
+      },
+    }));
+  },
+
+  syncNow: async () => {
+    const { settings, syncing } = get();
+    if (syncing) return;
+    const remote = settings.git_remote.trim();
+    const branch = settings.git_branch.trim() || "main";
+    if (!remote) {
+      get().toast(tr(get().settings.lang)("tSetRepo"), "error");
+      return;
+    }
+    if (!(await gitAvailable())) {
+      get().toast(tr(get().settings.lang)("tGitMissing"), "error");
+      return;
+    }
+    set({ syncing: true });
+    try {
+      // 1. リモートの最新を取り込み（マージ）
+      const remoteJson = await gitRemoteSnapshot(remote, branch);
+      if (remoteJson) {
+        try {
+          await dbApi.mergeSnapshot(JSON.parse(remoteJson));
+        } catch {
+          /* リモートが壊れていても自分の分は push する */
+        }
+      }
+      // 2. マージ後のスナップショットを push
+      const snap = await dbApi.buildSnapshot();
+      const json = JSON.stringify(snap, null, 2);
+      await gitCommitSnapshot(
+        remote,
+        branch,
+        json,
+        `cue sync ${new Date().toISOString()}`,
+      );
+      await get().reloadAll();
+      set({ lastSyncedAt: Date.now() });
+      get().toast(tr(get().settings.lang)("tSynced"));
+    } catch (e) {
+      get().toast(tr(get().settings.lang)("tSyncFail", { e: String(e) }), "error");
+    } finally {
+      set({ syncing: false });
+    }
+  },
+
+  setQuery: (q) => set({ query: q }),
+  select: (id) => set({ selectedId: id }),
+
+  setActiveProject: (id) => set({ activeProjectId: id, query: "" }),
+
+  openContextMenu: (x, y, items) => set({ contextMenu: { x, y, items } }),
+  closeContextMenu: () => set({ contextMenu: null }),
+  startRenameProject: (id) => set({ renamingProjectId: id, contextMenu: null }),
+  startRenameItem: (id) => set({ renamingItemId: id, contextMenu: null }),
+  renameItem: async (id, title) => {
+    await dbApi.setItemTitle(id, title.trim());
+    set({ renamingItemId: null });
+    await get().refresh();
+  },
+
+  addProject: async (name) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    const created = await dbApi.createProject(trimmed);
+    const projects = await dbApi.listProjects();
+    set({ projects, activeProjectId: created.id, query: "" });
+    get().toast(tr(get().settings.lang)("tProjectCreated"));
+  },
+
+  renameProject: async (id, name) => {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    await dbApi.renameProject(id, trimmed);
+    set({ projects: await dbApi.listProjects() });
+  },
+
+  removeProject: async (id) => {
+    const projects = get().projects;
+    if (projects.length <= 1) {
+      get().toast(tr(get().settings.lang)("tLastProject"), "error");
+      return;
+    }
+    const fallback = projects.find((p) => p.id !== id);
+    if (!fallback) return;
+    await dbApi.deleteProject(id, fallback.id);
+    const nextProjects = await dbApi.listProjects();
+    set((s) => ({
+      projects: nextProjects,
+      activeProjectId:
+        s.activeProjectId === id ? fallback.id : s.activeProjectId,
+    }));
+    await get().refresh();
+    get().toast(tr(get().settings.lang)("tProjectDeleted"));
+  },
+
+  reorderProject: async (draggedId, targetId, below) => {
+    if (draggedId === targetId) return;
+    const projects = get().projects; // position ASC で整列済み
+    const target = projects.find((p) => p.id === targetId);
+    if (!target) return;
+    const targetIndex = projects.findIndex((p) => p.id === targetId);
+    const neighborIndex = below ? targetIndex + 1 : targetIndex - 1;
+    const neighbor = projects[neighborIndex];
+
+    const newPos = neighbor
+      ? (target.position + neighbor.position) / 2
+      : below
+        ? target.position + 1
+        : target.position - 1;
+
+    await dbApi.setProjectPosition(draggedId, newPos);
+    set({ projects: await dbApi.listProjects() });
+  },
+
+  copyItem: async (item) => {
+    await copyToClipboard(item.body);
+    await dbApi.touchCopy(item.id);
+    get().toast(tr(get().settings.lang)("tCopied"));
+    set((s) => ({
+      items: s.items.map((i) =>
+        i.id === item.id
+          ? { ...i, copy_count: i.copy_count + 1, last_copied_at: Date.now() }
+          : i,
+      ),
+    }));
+  },
+
+  quickSaveFromClipboard: async () => {
+    let text: string | null = null;
+    try {
+      text = await readClipboard();
+    } catch {
+      text = null;
+    }
+    if (!text || !text.trim()) {
+      get().toast(tr(get().settings.lang)("tClipboardEmpty"), "error");
+      return;
+    }
+    const pid = get().activeProjectId ?? get().projects[0]?.id ?? null;
+    const created = await dbApi.createItem(pid, "", text);
+    await get().refresh();
+    set({ selectedId: created.id, query: "" });
+    get().toast(tr(get().settings.lang)("tSavedFromClipboard"));
+  },
+
+  newItem: () =>
+    set({
+      editor: { id: null, title: "", body: "" },
+      previewMode: false,
+    }),
+
+  editItem: (item) =>
+    set({
+      editor: { id: item.id, title: item.title, body: item.body },
+      previewMode: false,
+    }),
+
+  previewItem: (item) =>
+    set({
+      editor: { id: item.id, title: item.title, body: item.body },
+      previewMode: true,
+    }),
+
+  updateDraft: (partial) =>
+    set((s) => (s.editor ? { editor: { ...s.editor, ...partial } } : {})),
+
+  saveDraft: async () => {
+    const draft = get().editor;
+    if (!draft) return;
+    if (!draft.title.trim() && !draft.body.trim()) {
+      set({ editor: null });
+      return;
+    }
+    let selectedId: number;
+    if (draft.id === null) {
+      const pid = get().activeProjectId ?? get().projects[0]?.id ?? null;
+      const created = await dbApi.createItem(pid, draft.title, draft.body);
+      selectedId = created.id;
+    } else {
+      await dbApi.updateItem(draft.id, draft.title, draft.body);
+      selectedId = draft.id;
+    }
+    await get().refresh();
+    set({ editor: null, selectedId });
+    get().toast(tr(get().settings.lang)("tSaved"));
+  },
+
+  closeEditor: () => set({ editor: null }),
+  togglePreview: () => set((s) => ({ previewMode: !s.previewMode })),
+
+  removeItem: async (id) => {
+    await dbApi.deleteItem(id);
+    await get().refresh();
+    get().toast(tr(get().settings.lang)("tDeleted"));
+  },
+
+  togglePin: async (item) => {
+    await dbApi.setPinned(item.id, !item.pinned);
+    await get().refresh();
+  },
+
+  reorder: async (draggedId, targetId, below) => {
+    if (draggedId === targetId) return;
+    const items = get().items;
+    const target = items.find((i) => i.id === targetId);
+    const dragged = items.find((i) => i.id === draggedId);
+    if (!target || !dragged) return;
+
+    // 同じプロジェクト内の並び (items は pinned DESC, position ASC で整列済み)
+    const group = items.filter((i) => i.project_id === target.project_id);
+    const targetIndex = group.findIndex((i) => i.id === targetId);
+    const neighborIndex = below ? targetIndex + 1 : targetIndex - 1;
+    const neighbor = group[neighborIndex];
+
+    let newPos: number;
+    if (!neighbor) {
+      newPos = below ? target.position + 1 : target.position - 1;
+    } else {
+      newPos = (target.position + neighbor.position) / 2;
+    }
+
+    // ドロップ先のプロジェクト / ピン状態に合わせる
+    if (dragged.project_id !== target.project_id) {
+      await dbApi.setItemProject(draggedId, target.project_id);
+    }
+    if (dragged.pinned !== target.pinned) {
+      await dbApi.setPinned(draggedId, target.pinned);
+    }
+    await dbApi.setPosition(draggedId, newPos);
+    await get().refresh();
+  },
+
+  openSettings: () => set({ settingsOpen: true }),
+  closeSettings: () => set({ settingsOpen: false }),
+
+  setTheme: async (theme) => {
+    await dbApi.setSetting("theme", theme);
+    const dark = applyTheme(theme);
+    set((s) => ({ settings: { ...s.settings, theme }, isDark: dark }));
+  },
+
+  setAccent: async (accent) => {
+    await dbApi.setSetting("accent", accent);
+    applyAccent(accent);
+    set((s) => ({ settings: { ...s.settings, accent } }));
+  },
+
+  setLang: async (lang) => {
+    await dbApi.setSetting("lang", lang);
+    set((s) => ({ settings: { ...s.settings, lang } }));
+  },
+
+  toggleSidebar: async () => {
+    const next = !get().settings.sidebar_collapsed;
+    await dbApi.setSetting("sidebar_collapsed", next ? "1" : "0");
+    set((s) => ({ settings: { ...s.settings, sidebar_collapsed: next } }));
+  },
+
+  saveSettings: async (next) => {
+    const prev = get().settings;
+
+    // テーマはヘッダーの即時切替 (setTheme) で管理するため、ここでは触らない
+    await dbApi.setSetting("summon_shortcut", next.summon_shortcut);
+    await dbApi.setSetting("quicksave_shortcut", next.quicksave_shortcut);
+    await dbApi.setSetting("autostart", next.autostart ? "1" : "0");
+    await dbApi.setSetting(
+      "always_on_top_default",
+      next.always_on_top_default ? "1" : "0",
+    );
+    await dbApi.setSetting("git_enabled", next.git_enabled ? "1" : "0");
+    await dbApi.setSetting("git_remote", next.git_remote.trim());
+    await dbApi.setSetting("git_branch", next.git_branch.trim() || "main");
+    await dbApi.setSetting("accent", next.accent);
+    await dbApi.setSetting("lang", next.lang);
+    await dbApi.setSetting("text_scale", String(next.text_scale));
+    applyAccent(next.accent);
+    applyTextScale(next.text_scale);
+
+    if (
+      next.summon_shortcut !== prev.summon_shortcut ||
+      next.quicksave_shortcut !== prev.quicksave_shortcut
+    ) {
+      try {
+        await applyShortcuts(next.summon_shortcut, next.quicksave_shortcut);
+      } catch (e) {
+        get().toast(tr(get().settings.lang)("tShortcutFail", { e: String(e) }), "error");
+      }
+    }
+
+    if (next.autostart !== prev.autostart) {
+      try {
+        if (next.autostart) await enableAutostart();
+        else await disableAutostart();
+      } catch (e) {
+        get().toast(tr(get().settings.lang)("tAutostartFail", { e: String(e) }), "error");
+      }
+    }
+
+    // テーマ / サイドバー開閉は即時トグルで管理するため store 側を保持。
+    // アクセント / 言語は draft (next) を保存時に適用。
+    set((s) => ({
+      settings: {
+        ...next,
+        theme: s.settings.theme,
+        sidebar_collapsed: s.settings.sidebar_collapsed,
+      },
+      settingsOpen: false,
+    }));
+    get().toast(tr(get().settings.lang)("tSettingsSaved"));
+  },
+
+  setWindowPinned: async (value) => {
+    try {
+      await setWindowAlwaysOnTop(value);
+      set({ windowPinned: value });
+    } catch (e) {
+      get().toast(tr(get().settings.lang)("tAotFail", { e: String(e) }), "error");
+    }
+  },
+
+  toast: (message, kind = "info") => {
+    const id = toastSeq++;
+    set((s) => ({ toasts: [...s.toasts, { id, message, kind }] }));
+    setTimeout(() => get().removeToast(id), 2200);
+  },
+
+  removeToast: (id) =>
+    set((s) => ({ toasts: s.toasts.filter((t) => t.id !== id) })),
+}));

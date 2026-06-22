@@ -1,0 +1,272 @@
+@import "tailwindcss";
+
+/* クラス指定 (.dark) でダークモードを切り替える */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* アクセントカラー: data-accent で実行時に切替（既定 = blue） */
+@theme {
+  --color-accent-300: var(--accent-300);
+  --color-accent-500: var(--accent-500);
+  --color-accent-600: var(--accent-600);
+  --color-accent-700: var(--accent-700);
+}
+
+:root {
+  --accent-300: #93c5fd;
+  --accent-500: #3b82f6;
+  --accent-600: #2563eb;
+  --accent-700: #1d4ed8;
+}
+[data-accent="indigo"] {
+  --accent-300: #a5b4fc;
+  --accent-500: #6366f1;
+  --accent-600: #4f46e5;
+  --accent-700: #4338ca;
+}
+[data-accent="violet"] {
+  --accent-300: #c4b5fd;
+  --accent-500: #8b5cf6;
+  --accent-600: #7c3aed;
+  --accent-700: #6d28d9;
+}
+[data-accent="emerald"] {
+  --accent-300: #6ee7b7;
+  --accent-500: #10b981;
+  --accent-600: #059669;
+  --accent-700: #047857;
+}
+[data-accent="rose"] {
+  --accent-300: #fda4af;
+  --accent-500: #f43f5e;
+  --accent-600: #e11d48;
+  --accent-700: #be123c;
+}
+[data-accent="amber"] {
+  --accent-300: #fcd34d;
+  --accent-500: #f59e0b;
+  --accent-600: #d97706;
+  --accent-700: #b45309;
+}
+
+:root {
+  color-scheme: light dark;
+}
+
+::selection {
+  background: rgba(59, 130, 246, 0.3);
+}
+
+/* アクセシビリティ: モーション低減設定を尊重 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ショートカット表示などのキー風チップ */
+.cue-kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 22px;
+  height: 22px;
+  padding: 0 6px;
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+  font-size: 11px;
+  font-weight: 600;
+  line-height: 1;
+  border-radius: 6px;
+  border: 1px solid rgba(125, 125, 125, 0.35);
+  background: rgba(125, 125, 125, 0.1);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  font-family:
+    "Inter", system-ui, -apple-system, "Segoe UI", "Hiragino Kaku Gothic ProN",
+    "Hiragino Sans", "Noto Sans JP", Meiryo, sans-serif;
+  overflow: hidden;
+  user-select: none;
+}
+
+/* テキスト入力系は選択を許可 */
+input,
+textarea,
+[contenteditable="true"],
+.cue-selectable {
+  user-select: text;
+}
+
+/* スクロールバーを控えめに */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 120, 0.4) transparent;
+}
+*::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+*::-webkit-scrollbar-thumb {
+  background-color: rgba(120, 120, 120, 0.4);
+  border-radius: 9999px;
+}
+*::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+/* Markdown プレビューの最小スタイル */
+.cue-md {
+  line-height: 1.65;
+}
+.cue-md h1,
+.cue-md h2,
+.cue-md h3 {
+  font-weight: 700;
+  margin: 0.6em 0 0.3em;
+  line-height: 1.3;
+}
+.cue-md h1 {
+  font-size: 1.4em;
+}
+.cue-md h2 {
+  font-size: 1.2em;
+}
+.cue-md h3 {
+  font-size: 1.05em;
+}
+.cue-md p {
+  margin: 0.5em 0;
+}
+.cue-md ul,
+.cue-md ol {
+  margin: 0.5em 0;
+  padding-left: 1.4em;
+}
+.cue-md ul {
+  list-style: disc;
+}
+.cue-md ol {
+  list-style: decimal;
+}
+.cue-md code {
+  font-family: ui-monospace, "SFMono-Regular", "Cascadia Code", Consolas, monospace;
+  font-size: 0.88em;
+  background: rgba(125, 125, 125, 0.18);
+  padding: 0.1em 0.35em;
+  border-radius: 4px;
+}
+.cue-md pre {
+  background: rgba(125, 125, 125, 0.16);
+  padding: 0.75em 0.9em;
+  border-radius: 8px;
+  overflow-x: auto;
+  margin: 0.6em 0;
+}
+.cue-md pre code {
+  background: transparent;
+  padding: 0;
+}
+.cue-md blockquote {
+  border-left: 3px solid rgba(125, 125, 125, 0.45);
+  padding-left: 0.8em;
+  margin: 0.6em 0;
+  opacity: 0.85;
+}
+.cue-md a {
+  color: #6ea8fe;
+  text-decoration: underline;
+}
+
+/* トースト出現アニメ */
+@keyframes cue-toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px) scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+.cue-toast {
+  animation: cue-toast-in 0.16s ease-out;
+}
+
+/* オーバーレイ（編集 / 設定）の出現アニメ */
+@keyframes cue-overlay-in {
+  from {
+    opacity: 0;
+    transform: scale(0.985);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+.cue-overlay-in {
+  animation: cue-overlay-in 0.17s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* フェードイン（リスト等） */
+@keyframes cue-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.cue-fade-in {
+  animation: cue-fade-in 0.2s ease-out;
+}
+
+/* 行の出現（カスケード用） */
+@keyframes cue-row-in {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* 独自スクロールバー（薄い・余白付き・ホバーで濃く） */
+.cue-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(120, 120, 120, 0.35) transparent;
+}
+.cue-scroll::-webkit-scrollbar {
+  width: 11px;
+  height: 11px;
+}
+.cue-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.cue-scroll::-webkit-scrollbar-thumb {
+  background-color: rgba(130, 130, 130, 0.32);
+  border: 3px solid transparent;
+  background-clip: content-box;
+  border-radius: 9999px;
+  transition: background-color 0.15s;
+}
+.cue-scroll::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(130, 130, 130, 0.6);
+}
+.cue-scroll::-webkit-scrollbar-corner {
+  background: transparent;
+}

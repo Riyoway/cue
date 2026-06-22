@@ -1,0 +1,21 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Capability for the main window",
+  "windows": ["main"],
+  "permissions": [
+    "core:default",
+    "core:window:allow-start-dragging",
+    "core:window:allow-minimize",
+    "core:webview:allow-set-webview-zoom",
+    "sql:default",
+    "sql:allow-execute",
+    "clipboard-manager:allow-read-text",
+    "clipboard-manager:allow-write-text",
+    "autostart:allow-enable",
+    "autostart:allow-disable",
+    "autostart:allow-is-enabled",
+    "dialog:allow-open",
+    "dialog:allow-save"
+  ]
+}
