@@ -4,8 +4,6 @@
 
 <h1 align="center">Cue</h1>
 
----
-
 <p align="center">
   Save AI prompts, search them, and reuse them instantly.
 </p>
@@ -28,6 +26,8 @@
 <p align="center">
   <img src="docs/screenshot.png" width="720" alt="Cue screenshot" />
 </p>
+
+---
 
 Cue is a desktop app for saving and reusing the prompts you send to AI tools like Claude Code, Codex, and ChatGPT. Save a prompt with a hotkey, search for it later, and click it to copy.
 
