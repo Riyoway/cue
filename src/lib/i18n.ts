@@ -153,6 +153,15 @@ const en: Dict = {
   updateChangelog: "Changelog",
   untitled: "(Untitled)",
   tImportBadFormat: "This is not a Cue backup file",
+  ctxCopyImage: "Copy as image",
+  tCopiedImage: "Copied as image",
+  tCopyImageFail: "Copy as image failed: {e}",
+  imgWarnTitle: "Copy as image anyway?",
+  imgWarnBody:
+    "This prompt is short. As an image it usually costs more tokens than plain text — image copy pays off on long, dense prompts.",
+  dontShowAgain: "Don't show this again",
+  setPromoteImageCopy: "Always show “Copy as image”",
+  setPromoteImageCopyDesc: "Show it on short prompts too, not just long ones",
 };
 
 const ja: Dict = {
@@ -270,6 +279,15 @@ const ja: Dict = {
   updateChangelog: "変更履歴",
   untitled: "(無題)",
   tImportBadFormat: "Cue のバックアップ形式ではありません",
+  ctxCopyImage: "画像としてコピー",
+  tCopiedImage: "画像としてコピーしました",
+  tCopyImageFail: "画像コピーに失敗: {e}",
+  imgWarnTitle: "画像としてコピーしますか？",
+  imgWarnBody:
+    "このプロンプトは短いため、画像化するとテキストよりトークンを多く消費します。画像コピーが得なのは長く密なプロンプトです。",
+  dontShowAgain: "次回から表示しない",
+  setPromoteImageCopy: "「画像としてコピー」を常に表示",
+  setPromoteImageCopyDesc: "長文だけでなく短いプロンプトでも表示する",
 };
 
 const zh: Dict = {
@@ -387,6 +405,15 @@ const zh: Dict = {
   sizeXL: "特大",
   untitled: "(无标题)",
   tImportBadFormat: "这不是 Cue 的备份文件",
+  ctxCopyImage: "复制为图片",
+  tCopiedImage: "已复制为图片",
+  tCopyImageFail: "复制为图片失败：{e}",
+  imgWarnTitle: "仍要复制为图片？",
+  imgWarnBody:
+    "此提示词较短，转为图片通常比纯文本消耗更多 token。图片复制适合又长又密的提示词。",
+  dontShowAgain: "不再显示",
+  setPromoteImageCopy: "始终显示「复制为图片」",
+  setPromoteImageCopyDesc: "在短提示词上也显示，而不仅是长的",
 };
 
 const ko: Dict = {
@@ -504,6 +531,15 @@ const ko: Dict = {
   sizeXL: "아주 크게",
   untitled: "(제목 없음)",
   tImportBadFormat: "Cue 백업 파일이 아닙니다",
+  ctxCopyImage: "이미지로 복사",
+  tCopiedImage: "이미지로 복사했습니다",
+  tCopyImageFail: "이미지 복사 실패: {e}",
+  imgWarnTitle: "그래도 이미지로 복사할까요?",
+  imgWarnBody:
+    "이 프롬프트는 짧아서 이미지로 만들면 보통 텍스트보다 토큰을 더 많이 씁니다. 이미지 복사는 길고 밀도 높은 프롬프트에 유리합니다.",
+  dontShowAgain: "다시 표시하지 않기",
+  setPromoteImageCopy: "'이미지로 복사' 항상 표시",
+  setPromoteImageCopyDesc: "긴 프롬프트뿐 아니라 짧은 프롬프트에도 표시",
 };
 
 const es: Dict = {
@@ -622,6 +658,15 @@ const es: Dict = {
   sizeXL: "Muy grande",
   untitled: "(Sin título)",
   tImportBadFormat: "No es un archivo de copia de Cue",
+  ctxCopyImage: "Copiar como imagen",
+  tCopiedImage: "Copiado como imagen",
+  tCopyImageFail: "Error al copiar como imagen: {e}",
+  imgWarnTitle: "¿Copiar como imagen igualmente?",
+  imgWarnBody:
+    "Este prompt es corto. Como imagen suele costar más tokens que el texto plano; copiar como imagen conviene en prompts largos y densos.",
+  dontShowAgain: "No volver a mostrar",
+  setPromoteImageCopy: "Mostrar siempre «Copiar como imagen»",
+  setPromoteImageCopyDesc: "Mostrarlo también en prompts cortos, no solo largos",
 };
 
 const fr: Dict = {
@@ -740,6 +785,15 @@ const fr: Dict = {
   sizeXL: "Très grand",
   untitled: "(Sans titre)",
   tImportBadFormat: "Ce n’est pas un fichier de sauvegarde Cue",
+  ctxCopyImage: "Copier en image",
+  tCopiedImage: "Copié en image",
+  tCopyImageFail: "Échec de la copie en image : {e}",
+  imgWarnTitle: "Copier en image quand même ?",
+  imgWarnBody:
+    "Ce prompt est court. En image, il coûte généralement plus de tokens qu’en texte ; la copie en image est rentable sur les prompts longs et denses.",
+  dontShowAgain: "Ne plus afficher",
+  setPromoteImageCopy: "Toujours afficher « Copier en image »",
+  setPromoteImageCopyDesc: "L’afficher aussi sur les prompts courts, pas seulement les longs",
 };
 
 const de: Dict = {
@@ -858,6 +912,15 @@ const de: Dict = {
   sizeXL: "Sehr groß",
   untitled: "(Ohne Titel)",
   tImportBadFormat: "Dies ist keine Cue-Sicherungsdatei",
+  ctxCopyImage: "Als Bild kopieren",
+  tCopiedImage: "Als Bild kopiert",
+  tCopyImageFail: "Als Bild kopieren fehlgeschlagen: {e}",
+  imgWarnTitle: "Trotzdem als Bild kopieren?",
+  imgWarnBody:
+    "Dieser Prompt ist kurz. Als Bild kostet er meist mehr Tokens als reiner Text – Bildkopie lohnt sich bei langen, dichten Prompts.",
+  dontShowAgain: "Nicht mehr anzeigen",
+  setPromoteImageCopy: "„Als Bild kopieren“ immer anzeigen",
+  setPromoteImageCopyDesc: "Auch bei kurzen Prompts anzeigen, nicht nur bei langen",
 };
 
 const pt: Dict = {
@@ -976,6 +1039,15 @@ const pt: Dict = {
   sizeXL: "Muito grande",
   untitled: "(Sem título)",
   tImportBadFormat: "Este não é um arquivo de backup do Cue",
+  ctxCopyImage: "Copiar como imagem",
+  tCopiedImage: "Copiado como imagem",
+  tCopyImageFail: "Falha ao copiar como imagem: {e}",
+  imgWarnTitle: "Copiar como imagem mesmo assim?",
+  imgWarnBody:
+    "Este prompt é curto. Como imagem costuma custar mais tokens que texto puro; copiar como imagem compensa em prompts longos e densos.",
+  dontShowAgain: "Não mostrar novamente",
+  setPromoteImageCopy: "Sempre mostrar “Copiar como imagem”",
+  setPromoteImageCopyDesc: "Mostrar também em prompts curtos, não só nos longos",
 };
 
 const it: Dict = {
@@ -1094,6 +1166,15 @@ const it: Dict = {
   sizeXL: "Molto grande",
   untitled: "(Senza titolo)",
   tImportBadFormat: "Non è un file di backup di Cue",
+  ctxCopyImage: "Copia come immagine",
+  tCopiedImage: "Copiato come immagine",
+  tCopyImageFail: "Copia come immagine non riuscita: {e}",
+  imgWarnTitle: "Copiare come immagine comunque?",
+  imgWarnBody:
+    "Questo prompt è corto. Come immagine di solito costa più token del testo; la copia come immagine conviene su prompt lunghi e densi.",
+  dontShowAgain: "Non mostrare più",
+  setPromoteImageCopy: "Mostra sempre «Copia come immagine»",
+  setPromoteImageCopyDesc: "Mostralo anche sui prompt corti, non solo su quelli lunghi",
 };
 
 const ru: Dict = {
@@ -1212,6 +1293,15 @@ const ru: Dict = {
   sizeXL: "Очень большой",
   untitled: "(Без названия)",
   tImportBadFormat: "Это не файл резервной копии Cue",
+  ctxCopyImage: "Копировать как изображение",
+  tCopiedImage: "Скопировано как изображение",
+  tCopyImageFail: "Не удалось скопировать как изображение: {e}",
+  imgWarnTitle: "Всё равно скопировать как изображение?",
+  imgWarnBody:
+    "Этот промпт короткий. В виде изображения он обычно тратит больше токенов, чем текст; копирование как изображение выгодно для длинных плотных промптов.",
+  dontShowAgain: "Больше не показывать",
+  setPromoteImageCopy: "Всегда показывать «Копировать как изображение»",
+  setPromoteImageCopyDesc: "Показывать и для коротких промптов, а не только длинных",
 };
 
 const id: Dict = {
@@ -1330,6 +1420,15 @@ const id: Dict = {
   sizeXL: "Sangat besar",
   untitled: "(Tanpa judul)",
   tImportBadFormat: "Ini bukan file cadangan Cue",
+  ctxCopyImage: "Salin sebagai gambar",
+  tCopiedImage: "Disalin sebagai gambar",
+  tCopyImageFail: "Gagal menyalin sebagai gambar: {e}",
+  imgWarnTitle: "Tetap salin sebagai gambar?",
+  imgWarnBody:
+    "Prompt ini pendek. Sebagai gambar biasanya menghabiskan lebih banyak token daripada teks; salin sebagai gambar menguntungkan untuk prompt panjang dan padat.",
+  dontShowAgain: "Jangan tampilkan lagi",
+  setPromoteImageCopy: "Selalu tampilkan “Salin sebagai gambar”",
+  setPromoteImageCopyDesc: "Tampilkan juga pada prompt pendek, bukan hanya yang panjang",
 };
 
 const vi: Dict = {
@@ -1448,6 +1547,15 @@ const vi: Dict = {
   sizeXL: "Rất lớn",
   untitled: "(Không có tiêu đề)",
   tImportBadFormat: "Đây không phải tệp sao lưu Cue",
+  ctxCopyImage: "Sao chép dạng ảnh",
+  tCopiedImage: "Đã sao chép dạng ảnh",
+  tCopyImageFail: "Sao chép dạng ảnh thất bại: {e}",
+  imgWarnTitle: "Vẫn sao chép dạng ảnh?",
+  imgWarnBody:
+    "Prompt này ngắn. Ở dạng ảnh thường tốn nhiều token hơn văn bản; sao chép dạng ảnh có lợi với prompt dài và dày đặc.",
+  dontShowAgain: "Không hiển thị lại",
+  setPromoteImageCopy: "Luôn hiện “Sao chép dạng ảnh”",
+  setPromoteImageCopyDesc: "Hiện cả trên prompt ngắn, không chỉ prompt dài",
 };
 
 const tr: Dict = {
@@ -1566,6 +1674,15 @@ const tr: Dict = {
   sizeXL: "Çok büyük",
   untitled: "(Başlıksız)",
   tImportBadFormat: "Bu bir Cue yedek dosyası değil",
+  ctxCopyImage: "Görüntü olarak kopyala",
+  tCopiedImage: "Görüntü olarak kopyalandı",
+  tCopyImageFail: "Görüntü olarak kopyalama başarısız: {e}",
+  imgWarnTitle: "Yine de görüntü olarak kopyalansın mı?",
+  imgWarnBody:
+    "Bu prompt kısa. Görüntü olarak genelde düz metinden daha çok token harcar; görüntü kopyalama uzun ve yoğun promptlarda kazandırır.",
+  dontShowAgain: "Bir daha gösterme",
+  setPromoteImageCopy: "“Görüntü olarak kopyala”yı her zaman göster",
+  setPromoteImageCopyDesc: "Yalnızca uzun değil kısa promptlarda da göster",
 };
 
 const pl: Dict = {
@@ -1684,6 +1801,15 @@ const pl: Dict = {
   sizeXL: "Bardzo duży",
   untitled: "(Bez tytułu)",
   tImportBadFormat: "To nie jest plik kopii zapasowej Cue",
+  ctxCopyImage: "Kopiuj jako obraz",
+  tCopiedImage: "Skopiowano jako obraz",
+  tCopyImageFail: "Kopiowanie jako obraz nie powiodło się: {e}",
+  imgWarnTitle: "Skopiować jako obraz mimo to?",
+  imgWarnBody:
+    "Ten prompt jest krótki. Jako obraz zwykle kosztuje więcej tokenów niż tekst; kopiowanie jako obraz opłaca się przy długich, gęstych promptach.",
+  dontShowAgain: "Nie pokazuj ponownie",
+  setPromoteImageCopy: "Zawsze pokazuj „Kopiuj jako obraz”",
+  setPromoteImageCopyDesc: "Pokazuj też przy krótkich promptach, nie tylko długich",
 };
 
 const DICTS: Record<Lang, Dict> = {

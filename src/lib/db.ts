@@ -338,6 +338,8 @@ export async function getSettings(): Promise<Settings> {
     lang: map.get("lang") ?? "",
     sidebar_collapsed: map.get("sidebar_collapsed") === "1",
     text_scale: Number(map.get("text_scale")) || DEFAULT_SETTINGS.text_scale,
+    promote_image_copy: map.get("promote_image_copy") !== "0", // 既定 on
+    image_copy_warn_dismissed: map.get("image_copy_warn_dismissed") === "1",
   };
 }
 

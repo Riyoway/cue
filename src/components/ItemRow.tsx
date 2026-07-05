@@ -1,8 +1,9 @@
 import type { DragEvent, MouseEvent as ReactMouseEvent } from "react";
-import { Copy, Eye, Pencil, Pin, PinOff, SquarePen, Trash2 } from "lucide-react";
+import { Copy, Eye, Image as ImageIcon, Pencil, Pin, PinOff, SquarePen, Trash2 } from "lucide-react";
 import { useStore } from "../store";
 import type { Item } from "../types";
 import { displayTitle, snippet } from "../lib/search";
+import { IMAGE_COPY_MIN_CHARS } from "../lib/render";
 import { useT } from "../lib/i18n";
 import { IconButton } from "./ui";
 
@@ -26,6 +27,8 @@ export function ItemRow({
   onDragEnd: (e: DragEvent) => void;
 }) {
   const copyItem = useStore((s) => s.copyItem);
+  const requestImageCopy = useStore((s) => s.requestImageCopy);
+  const promoteImageCopy = useStore((s) => s.settings.promote_image_copy);
   const editItem = useStore((s) => s.editItem);
   const previewItem = useStore((s) => s.previewItem);
   const removeItem = useStore((s) => s.removeItem);
@@ -41,6 +44,9 @@ export function ItemRow({
 
   const title = displayTitle(item) || t("untitled");
   const sub = snippet(item.body);
+  // 長文は推奨表示、短文は promote 設定が on のときアピール用に表示。
+  const showImageCopy =
+    promoteImageCopy || item.body.length >= IMAGE_COPY_MIN_CHARS;
   const projectName =
     activeProjectId === null
       ? projects.find((p) => p.id === item.project_id)?.name
@@ -52,6 +58,15 @@ export function ItemRow({
     select(item.id);
     openContextMenu(e.clientX, e.clientY, [
       { label: t("ctxCopy"), icon: <Copy size={14} />, onSelect: () => copyItem(item) },
+      ...(showImageCopy
+        ? [
+            {
+              label: t("ctxCopyImage"),
+              icon: <ImageIcon size={14} />,
+              onSelect: () => requestImageCopy(item.body, item.id),
+            },
+          ]
+        : []),
       {
         label: t("ctxRenameTitle"),
         icon: <Pencil size={14} />,
@@ -155,6 +170,18 @@ export function ItemRow({
         >
           <Copy size={14} />
         </IconButton>
+        {showImageCopy && (
+          <IconButton
+            size="sm"
+            label={t("ctxCopyImage")}
+            onClick={(e) => {
+              e.stopPropagation();
+              requestImageCopy(item.body, item.id);
+            }}
+          >
+            <ImageIcon size={14} />
+          </IconButton>
+        )}
         <IconButton
           size="sm"
           label={t("edPreview")}

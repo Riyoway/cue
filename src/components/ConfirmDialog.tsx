@@ -1,19 +1,26 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { TriangleAlert } from "lucide-react";
 import { useStore } from "../store";
 import { useT } from "../lib/i18n";
 
-/** 取り消せない破壊的操作（プロジェクト削除・全データ消去）の確認モーダル。 */
+/** 確認モーダル。破壊的操作（プロジェクト削除・全データ消去）と、
+ *  推奨外の画像コピー警告（「次回から表示しない」付き）を扱う。 */
 export function ConfirmDialog() {
   const pendingProject = useStore((s) => s.pendingProjectDelete);
   const pendingErase = useStore((s) => s.pendingDataErase);
+  const pendingImageCopy = useStore((s) => s.pendingImageCopy);
   const confirmProject = useStore((s) => s.confirmProjectDelete);
   const cancelProject = useStore((s) => s.cancelProjectDelete);
   const confirmErase = useStore((s) => s.confirmDataErase);
   const cancelErase = useStore((s) => s.cancelDataErase);
+  const confirmImageCopy = useStore((s) => s.confirmImageCopy);
+  const cancelImageCopy = useStore((s) => s.cancelImageCopy);
   const t = useT();
 
-  // プロジェクト削除を優先。どちらも無ければ非表示。
+  const [dontAsk, setDontAsk] = useState(false);
+  useEffect(() => setDontAsk(false), [pendingImageCopy]);
+
+  // プロジェクト削除 > 全データ消去 > 画像コピー警告 の優先順。どれも無ければ非表示。
   const active = pendingProject
     ? {
         title: t("confirmDeleteProjectTitle"),
@@ -24,6 +31,8 @@ export function ConfirmDialog() {
         confirmLabel: t("ctxDelete"),
         confirm: () => confirmProject(),
         cancel: cancelProject,
+        danger: true,
+        checkbox: false,
       }
     : pendingErase
       ? {
@@ -32,8 +41,20 @@ export function ConfirmDialog() {
           confirmLabel: t("btnErase"),
           confirm: () => confirmErase(),
           cancel: cancelErase,
+          danger: true,
+          checkbox: false,
         }
-      : null;
+      : pendingImageCopy
+        ? {
+            title: t("imgWarnTitle"),
+            body: t("imgWarnBody"),
+            confirmLabel: t("ctxCopyImage"),
+            confirm: () => confirmImageCopy(dontAsk),
+            cancel: cancelImageCopy,
+            danger: false,
+            checkbox: true,
+          }
+        : null;
 
   useEffect(() => {
     if (!active) return;
@@ -42,9 +63,9 @@ export function ConfirmDialog() {
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-    // active は pending 値から導出されるため、この 2 つで十分。
+    // active は pending 値から導出されるため、この 3 つで十分。
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [pendingProject, pendingErase]);
+  }, [pendingProject, pendingErase, pendingImageCopy]);
 
   if (!active) return null;
 
@@ -60,7 +81,13 @@ export function ConfirmDialog() {
         className="w-full max-w-sm overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-2xl dark:border-zinc-700 dark:bg-zinc-800"
       >
         <div className="flex gap-3 p-5">
-          <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full bg-red-500/10 text-red-600 dark:text-red-400">
+          <span
+            className={`mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-full ${
+              active.danger
+                ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                : "bg-amber-500/10 text-amber-600 dark:text-amber-400"
+            }`}
+          >
             <TriangleAlert size={18} />
           </span>
           <div className="min-w-0">
@@ -72,22 +99,41 @@ export function ConfirmDialog() {
             </p>
           </div>
         </div>
-        <div className="flex justify-end gap-2 border-t border-zinc-100 px-5 py-3 dark:border-zinc-700/60">
-          <button
-            type="button"
-            autoFocus
-            onClick={active.cancel}
-            className="cursor-pointer rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-600 outline-none transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-accent-500/50 dark:text-zinc-300 dark:hover:bg-zinc-700/70"
-          >
-            {t("btnCancel")}
-          </button>
-          <button
-            type="button"
-            onClick={active.confirm}
-            className="cursor-pointer rounded-lg bg-red-600 px-3 py-1.5 text-[13px] font-medium text-white outline-none transition-colors hover:bg-red-700 focus-visible:ring-2 focus-visible:ring-red-500/50"
-          >
-            {active.confirmLabel}
-          </button>
+        <div className="flex items-center justify-between gap-2 border-t border-zinc-100 px-5 py-3 dark:border-zinc-700/60">
+          {active.checkbox ? (
+            <label className="flex cursor-pointer items-center gap-1.5 text-[12px] text-zinc-500 select-none dark:text-zinc-400">
+              <input
+                type="checkbox"
+                checked={dontAsk}
+                onChange={(e) => setDontAsk(e.target.checked)}
+                className="h-3.5 w-3.5 cursor-pointer accent-accent-600"
+              />
+              {t("dontShowAgain")}
+            </label>
+          ) : (
+            <span />
+          )}
+          <div className="flex gap-2">
+            <button
+              type="button"
+              autoFocus
+              onClick={active.cancel}
+              className="cursor-pointer rounded-lg px-3 py-1.5 text-[13px] font-medium text-zinc-600 outline-none transition-colors hover:bg-zinc-100 focus-visible:ring-2 focus-visible:ring-accent-500/50 dark:text-zinc-300 dark:hover:bg-zinc-700/70"
+            >
+              {t("btnCancel")}
+            </button>
+            <button
+              type="button"
+              onClick={active.confirm}
+              className={`cursor-pointer rounded-lg px-3 py-1.5 text-[13px] font-medium text-white outline-none transition-colors focus-visible:ring-2 ${
+                active.danger
+                  ? "bg-red-600 hover:bg-red-700 focus-visible:ring-red-500/50"
+                  : "bg-accent-600 hover:bg-accent-500 focus-visible:ring-accent-500/60"
+              }`}
+            >
+              {active.confirmLabel}
+            </button>
+          </div>
         </div>
       </div>
     </div>

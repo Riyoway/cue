@@ -53,6 +53,10 @@ export interface Settings {
   lang: string;
   sidebar_collapsed: boolean;
   text_scale: number;
+  /** 短いプロンプトでも「画像としてコピー」を表示（機能アピール用）。 */
+  promote_image_copy: boolean;
+  /** 推奨外（短い）プロンプトの画像コピー警告を「次回から表示しない」で無効化したか。 */
+  image_copy_warn_dismissed: boolean;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -68,6 +72,8 @@ export const DEFAULT_SETTINGS: Settings = {
   lang: "en",
   sidebar_collapsed: false,
   text_scale: 1,
+  promote_image_copy: true,
+  image_copy_warn_dismissed: false,
 };
 
 /** テキストサイズの選択肢（WebView ズーム倍率＋i18nキー） */

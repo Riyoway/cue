@@ -287,6 +287,13 @@ export function Settings() {
               onChange={(v) => patch({ always_on_top_default: v })}
             />
           </Row>
+          <Row label={t("setPromoteImageCopy")} desc={t("setPromoteImageCopyDesc")}>
+            <Toggle
+              label={t("setPromoteImageCopy")}
+              checked={draft.promote_image_copy}
+              onChange={(v) => patch({ promote_image_copy: v })}
+            />
+          </Row>
         </Section>
 
         <Section title={t("setBackup")}>

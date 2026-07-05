@@ -1,8 +1,9 @@
 import { type KeyboardEvent, useEffect, useRef } from "react";
-import { Copy, Eye, SquarePen } from "lucide-react";
+import { Copy, Eye, Image as ImageIcon, SquarePen } from "lucide-react";
 import { useStore } from "../store";
 import { renderMarkdown } from "../lib/markdown";
 import { copyToClipboard } from "../lib/tauri";
+import { IMAGE_COPY_MIN_CHARS } from "../lib/render";
 import { handleHeaderMouseDown } from "../lib/drag";
 import { useT } from "../lib/i18n";
 import { MOD } from "../lib/platform";
@@ -16,6 +17,8 @@ export function Editor() {
   const saveDraft = useStore((s) => s.saveDraft);
   const closeEditor = useStore((s) => s.closeEditor);
   const togglePreview = useStore((s) => s.togglePreview);
+  const requestImageCopy = useStore((s) => s.requestImageCopy);
+  const promoteImageCopy = useStore((s) => s.settings.promote_image_copy);
   const toast = useStore((s) => s.toast);
 
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -74,6 +77,14 @@ export function Editor() {
         <IconButton label={t("edCopyBody")} onClick={copyBody}>
           <Copy size={16} />
         </IconButton>
+        {(promoteImageCopy || draft.body.length >= IMAGE_COPY_MIN_CHARS) && (
+          <IconButton
+            label={t("ctxCopyImage")}
+            onClick={() => requestImageCopy(draft.body, draft.id ?? undefined)}
+          >
+            <ImageIcon size={16} />
+          </IconButton>
+        )}
       </div>
 
       {previewMode ? (

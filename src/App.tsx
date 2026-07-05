@@ -100,7 +100,7 @@ export default function App() {
       const s = useStore.getState();
 
       // 確認モーダル表示中はモーダル側に任せる（Escape の二重処理を防ぐ）。
-      if (s.pendingProjectDelete || s.pendingDataErase) return;
+      if (s.pendingProjectDelete || s.pendingDataErase || s.pendingImageCopy) return;
 
       if (s.settingsOpen) {
         if (e.key === "Escape") {

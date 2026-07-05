@@ -15,8 +15,10 @@ import {
 import * as dbApi from "./lib/db";
 import { type Lang, detectLang, makeTranslate } from "./lib/i18n";
 import { type UpdateInfo, currentVersion, fetchUpdate } from "./lib/update";
+import { IMAGE_COPY_MIN_CHARS, renderTextToPngBlob } from "./lib/render";
 import {
   applyShortcuts,
+  copyImageToClipboard,
   copyToClipboard,
   exportData,
   gitAvailable,
@@ -80,6 +82,7 @@ interface CueState {
   renamingItemId: number | null;
   pendingProjectDelete: { id: number; name: string; count: number } | null;
   pendingDataErase: boolean;
+  pendingImageCopy: { text: string; itemId: number | null } | null;
 
   init: () => Promise<void>;
   refresh: () => Promise<void>;
@@ -115,6 +118,10 @@ interface CueState {
   renameItem: (id: number, title: string) => Promise<void>;
 
   copyItem: (item: Item) => Promise<void>;
+  /** 画像コピーを要求。推奨外（短い）で未黙認なら警告ダイアログを出し、それ以外は即コピー。 */
+  requestImageCopy: (text: string, itemId?: number) => Promise<void>;
+  confirmImageCopy: (dontAskAgain: boolean) => Promise<void>;
+  cancelImageCopy: () => void;
   quickSaveFromClipboard: () => Promise<void>;
 
   newItem: () => void;
@@ -166,6 +173,28 @@ function applyTextScale(scale: number) {
 /** 現在の言語に紐づく翻訳関数（store 内トースト用）。 */
 const tr = (lang: string) => makeTranslate(lang as Lang);
 
+/** テキストを画像化してクリップボードへ。推奨外の警告ゲートは呼び出し側で判定する。
+ *  itemId があればコピー回数も更新（未保存の下書きは null）。 */
+async function doImageCopy(text: string, itemId: number | null): Promise<void> {
+  const lang = useStore.getState().settings.lang;
+  try {
+    await copyImageToClipboard(await renderTextToPngBlob(text));
+    if (itemId != null) {
+      await dbApi.touchCopy(itemId);
+      useStore.setState((s) => ({
+        items: s.items.map((i) =>
+          i.id === itemId
+            ? { ...i, copy_count: i.copy_count + 1, last_copied_at: Date.now() }
+            : i,
+        ),
+      }));
+    }
+    useStore.getState().toast(tr(lang)("tCopiedImage"));
+  } catch (e) {
+    useStore.getState().toast(tr(lang)("tCopyImageFail", { e: String(e) }), "error");
+  }
+}
+
 export const useStore = create<CueState>((set, get) => ({
   ready: false,
   items: [],
@@ -188,6 +217,7 @@ export const useStore = create<CueState>((set, get) => ({
   contextMenu: null,
   pendingProjectDelete: null,
   pendingDataErase: false,
+  pendingImageCopy: null,
   renamingProjectId: null,
   renamingItemId: null,
 
@@ -526,6 +556,28 @@ export const useStore = create<CueState>((set, get) => ({
     }));
   },
 
+  requestImageCopy: async (text, itemId) => {
+    const { settings } = get();
+    // 推奨外（短い）かつ未黙認なら警告ダイアログへ。それ以外は即コピー。
+    if (text.length < IMAGE_COPY_MIN_CHARS && !settings.image_copy_warn_dismissed) {
+      set({ pendingImageCopy: { text, itemId: itemId ?? null } });
+      return;
+    }
+    await doImageCopy(text, itemId ?? null);
+  },
+
+  confirmImageCopy: async (dontAskAgain) => {
+    const p = get().pendingImageCopy;
+    set({ pendingImageCopy: null });
+    if (dontAskAgain) {
+      await dbApi.setSetting("image_copy_warn_dismissed", "1");
+      set((s) => ({ settings: { ...s.settings, image_copy_warn_dismissed: true } }));
+    }
+    if (p) await doImageCopy(p.text, p.itemId);
+  },
+
+  cancelImageCopy: () => set({ pendingImageCopy: null }),
+
   quickSaveFromClipboard: async () => {
     let text: string | null = null;
     try {
@@ -674,6 +726,7 @@ export const useStore = create<CueState>((set, get) => ({
     await dbApi.setSetting("accent", next.accent);
     await dbApi.setSetting("lang", next.lang);
     await dbApi.setSetting("text_scale", String(next.text_scale));
+    await dbApi.setSetting("promote_image_copy", next.promote_image_copy ? "1" : "0");
     applyAccent(next.accent);
     applyTextScale(next.text_scale);
 
@@ -704,6 +757,8 @@ export const useStore = create<CueState>((set, get) => ({
         ...next,
         theme: s.settings.theme,
         sidebar_collapsed: s.settings.sidebar_collapsed,
+        // ダイアログ側で更新される値。設定画面の古い draft で上書きしない。
+        image_copy_warn_dismissed: s.settings.image_copy_warn_dismissed,
       },
       settingsOpen: false,
     }));

@@ -38,6 +38,11 @@ export const applyShortcuts = (summon: string, quicksave: string) =>
 export const copyToClipboard = (text: string) => writeText(text);
 export const readClipboard = () => readText();
 
+/** 画像を PNG でクリップボードへ（WebView 標準の Clipboard API）。
+ *  ponytail: 非Chromium webview では失敗し得る→必要なら clipboard-manager の writeImage に差し替え。 */
+export const copyImageToClipboard = (blob: Blob) =>
+  navigator.clipboard.write([new ClipboardItem({ "image/png": blob })]);
+
 // ---- エクスポート / インポート / Git --------------------------------------
 
 const JSON_FILTER = [{ name: "Cue backup", extensions: ["json"] }];
