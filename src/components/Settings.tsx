@@ -1,5 +1,18 @@
 import { type KeyboardEvent, type ReactNode, useEffect, useState } from "react";
-import { Check, Download, RefreshCw, Trash2, TriangleAlert, Upload, X } from "lucide-react";
+import {
+  Check,
+  Download,
+  Info,
+  Keyboard,
+  Palette,
+  Power,
+  RefreshCw,
+  Sparkles,
+  Trash2,
+  TriangleAlert,
+  Upload,
+  X,
+} from "lucide-react";
 import { useStore } from "../store";
 import { gitAvailable, openUrl, quitApp } from "../lib/tauri";
 import { handleHeaderMouseDown } from "../lib/drag";
@@ -8,6 +21,7 @@ import { MOD } from "../lib/platform";
 import { ACCENTS, TEXT_SCALES, type Settings as SettingsType } from "../types";
 import { IconButton } from "./ui";
 import { Dropdown } from "./Dropdown";
+import { AiSettings } from "./AiSettings";
 
 function normalizeKey(e: KeyboardEvent): string | null {
   const code = e.code;
@@ -108,16 +122,20 @@ function Toggle({
   );
 }
 
-function Section({ title, children }: { title: string; children: ReactNode }) {
+function Card({ children }: { children: ReactNode }) {
   return (
-    <section>
-      <h2 className="mb-2 px-1 text-[11px] font-semibold tracking-wider text-zinc-400 uppercase">
-        {title}
-      </h2>
-      <div className="divide-y divide-zinc-200/70 overflow-hidden rounded-xl border border-zinc-200/80 bg-zinc-50/40 dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-800/20">
-        {children}
-      </div>
-    </section>
+    <div className="divide-y divide-zinc-200/70 overflow-hidden rounded-xl border border-zinc-200/80 bg-zinc-50/40 dark:divide-zinc-800 dark:border-zinc-800 dark:bg-zinc-800/20">
+      {children}
+    </div>
+  );
+}
+
+function Pane({ title, children }: { title: string; children: ReactNode }) {
+  return (
+    <div className="cue-fade-in space-y-4">
+      <h2 className="text-[15px] font-semibold text-zinc-800 dark:text-zinc-100">{title}</h2>
+      {children}
+    </div>
   );
 }
 
@@ -128,24 +146,24 @@ function Row({
 }: {
   label: string;
   desc?: string;
-  children: ReactNode;
+  children?: ReactNode;
 }) {
   return (
     <div className="flex min-h-[52px] items-center justify-between gap-4 px-3.5 py-2.5">
       <div className="min-w-0">
-        <div className="text-[13px] font-medium text-zinc-800 dark:text-zinc-100">
-          {label}
-        </div>
+        <div className="text-[13px] font-medium text-zinc-800 dark:text-zinc-100">{label}</div>
         {desc && (
           <div className="mt-0.5 text-[11px] leading-snug text-zinc-500 dark:text-zinc-400">
             {desc}
           </div>
         )}
       </div>
-      <div className="shrink-0">{children}</div>
+      {children && <div className="shrink-0">{children}</div>}
     </div>
   );
 }
+
+type CatId = "appearance" | "shortcuts" | "startup" | "ai" | "backup" | "about" | "data";
 
 export function Settings() {
   const settings = useStore((s) => s.settings);
@@ -162,6 +180,7 @@ export function Settings() {
   const updateInfo = useStore((s) => s.updateInfo);
   const t = useT();
 
+  const [active, setActive] = useState<CatId>("appearance");
   const [draft, setDraft] = useState<SettingsType>(settings);
   const patch = (p: Partial<SettingsType>) => setDraft((d) => ({ ...d, ...p }));
 
@@ -187,6 +206,16 @@ export function Settings() {
   const primaryBtn =
     "inline-flex cursor-pointer items-center gap-1.5 rounded-lg bg-accent-600 px-2.5 py-1.5 text-[12px] font-medium text-white outline-none transition duration-150 hover:bg-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/60 active:scale-95";
 
+  const cats: { id: CatId; label: string; Icon: typeof Palette; danger?: boolean }[] = [
+    { id: "appearance", label: t("catAppearance"), Icon: Palette },
+    { id: "shortcuts", label: t("setShortcuts"), Icon: Keyboard },
+    { id: "startup", label: t("setStartup"), Icon: Power },
+    { id: "ai", label: "AI", Icon: Sparkles },
+    { id: "backup", label: t("setBackup"), Icon: RefreshCw },
+    { id: "about", label: t("setVersion"), Icon: Info },
+    { id: "data", label: t("setData"), Icon: Trash2, danger: true },
+  ];
+
   return (
     <div className="cue-overlay-in absolute inset-0 z-30 flex flex-col bg-white dark:bg-zinc-900">
       <header
@@ -201,208 +230,259 @@ export function Settings() {
         </IconButton>
       </header>
 
-      <div className="cue-scroll flex-1 space-y-6 overflow-y-auto px-5 py-5">
-        <Section title={t("setLanguage")}>
-          <Row label={t("setLanguage")}>
-            <Dropdown
-              value={draft.lang}
-              ariaLabel={t("setLanguage")}
-              onChange={(v) => patch({ lang: v })}
-              options={LANGUAGES.map((l) => ({ value: l.id, label: l.label }))}
-            />
-          </Row>
-        </Section>
-
-        <Section title={t("setAccent")}>
-          <div className="flex items-center gap-3 px-3.5 py-3.5">
-            {ACCENTS.map((a) => (
-              <button
-                key={a.id}
-                type="button"
-                title={a.id}
-                aria-label={`${t("setAccent")}: ${a.id}`}
-                aria-pressed={draft.accent === a.id}
-                onClick={() => patch({ accent: a.id })}
-                style={{ backgroundColor: a.color }}
-                className={`h-7 w-7 cursor-pointer rounded-full outline-none transition-transform duration-150 active:scale-90 ${
-                  draft.accent === a.id
-                    ? "ring-2 ring-zinc-400 ring-offset-2 ring-offset-white dark:ring-zinc-300 dark:ring-offset-zinc-900"
-                    : "hover:scale-110"
-                }`}
-              />
-            ))}
-          </div>
-        </Section>
-
-        <Section title={t("setTextSize")}>
-          <div className="px-3.5 py-3.5">
-            <div className="inline-flex rounded-lg bg-zinc-200/70 p-0.5 dark:bg-zinc-800">
-              {TEXT_SCALES.map((s) => (
-                <button
-                  key={s.value}
-                  type="button"
-                  onClick={() => patch({ text_scale: s.value })}
-                  className={`cursor-pointer rounded-md px-2.5 py-1 text-[12px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent-500/50 ${
-                    draft.text_scale === s.value
-                      ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
-                      : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
-                  }`}
-                >
-                  {t(s.key)}
-                </button>
-              ))}
-            </div>
-          </div>
-        </Section>
-
-        <Section title={t("setShortcuts")}>
-          <Row label={t("setSummon")} desc={t("setSummonDesc")}>
-            <ShortcutInput
-              label={t("setSummon")}
-              value={draft.summon_shortcut}
-              onChange={(v) => patch({ summon_shortcut: v })}
-            />
-          </Row>
-          <Row label={t("setQuicksave")} desc={t("setQuicksaveDesc")}>
-            <ShortcutInput
-              label={t("setQuicksave")}
-              value={draft.quicksave_shortcut}
-              onChange={(v) => patch({ quicksave_shortcut: v })}
-            />
-          </Row>
-        </Section>
-
-        <Section title={t("setStartup")}>
-          <Row label={t("setAutostart")}>
-            <Toggle
-              label={t("setAutostart")}
-              checked={draft.autostart}
-              onChange={(v) => patch({ autostart: v })}
-            />
-          </Row>
-          <Row label={t("setAot")} desc={t("setAotDesc")}>
-            <Toggle
-              label={t("setAot")}
-              checked={draft.always_on_top_default}
-              onChange={(v) => patch({ always_on_top_default: v })}
-            />
-          </Row>
-          <Row label={t("setPromoteImageCopy")} desc={t("setPromoteImageCopyDesc")}>
-            <Toggle
-              label={t("setPromoteImageCopy")}
-              checked={draft.promote_image_copy}
-              onChange={(v) => patch({ promote_image_copy: v })}
-            />
-          </Row>
-        </Section>
-
-        <Section title={t("setBackup")}>
-          <Row label={t("setFile")} desc={t("setFileDesc")}>
-            <div className="flex gap-2">
-              <button type="button" onClick={() => exportToFile()} className={secondaryBtn}>
-                <Download size={14} aria-hidden />
-                {t("btnExport")}
-              </button>
-              <button type="button" onClick={() => importFromFile()} className={secondaryBtn}>
-                <Upload size={14} aria-hidden />
-                {t("btnImport")}
-              </button>
-            </div>
-          </Row>
-
-          <Row label={t("setGit")} desc={t("setGitDesc")}>
-            <Toggle
-              label={t("setGit")}
-              checked={draft.git_enabled}
-              onChange={(v) => patch({ git_enabled: v })}
-            />
-          </Row>
-
-          {draft.git_enabled && (
-            <div className="space-y-2.5 px-3.5 py-3">
-              <div className="flex items-center gap-1.5 text-[11px]">
-                {gitOk === null ? (
-                  <span className="text-zinc-400">{t("setGitChecking")}</span>
-                ) : gitOk ? (
-                  <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
-                    <Check size={13} aria-hidden /> {t("setGitFound")}
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
-                    <TriangleAlert size={13} aria-hidden /> {t("setGitMissing")}
-                  </span>
-                )}
-              </div>
-              <input
-                value={draft.git_remote}
-                onChange={(e) => patch({ git_remote: e.target.value })}
-                placeholder="git@github.com:you/cue-private.git"
-                aria-label="URL"
-                spellCheck={false}
-                className={inputCls}
-              />
-              <div className="flex items-center gap-2">
-                <input
-                  value={draft.git_branch}
-                  onChange={(e) => patch({ git_branch: e.target.value })}
-                  placeholder="main"
-                  aria-label="branch"
-                  spellCheck={false}
-                  className="h-9 w-24 shrink-0 rounded-lg border border-zinc-300 bg-transparent px-2.5 text-[12px] text-zinc-800 outline-none transition-colors focus-visible:border-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/40 dark:border-zinc-700 dark:text-zinc-100"
-                />
-                <button
-                  type="button"
-                  onClick={onSyncNow}
-                  disabled={syncing || !draft.git_remote.trim() || gitOk === false}
-                  className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-accent-600 px-3 text-[12px] font-medium whitespace-nowrap text-white outline-none transition duration-150 hover:bg-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/60 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                  <RefreshCw size={14} className={syncing ? "animate-spin" : ""} aria-hidden />
-                  {syncing ? t("btnSyncing") : t("btnSyncNow")}
-                </button>
-              </div>
-              <p className="text-[11px] leading-relaxed text-zinc-400">
-                {t("setGitNote")}
-                {lastSyncedAt
-                  ? " " +
-                    t("setLastSync", {
-                      time: new Date(lastSyncedAt).toLocaleTimeString(),
-                    })
-                  : ""}
-              </p>
-            </div>
-          )}
-        </Section>
-
-        <Section title={t("setVersion")}>
-          <Row
-            label={version ? `Cue ${version}` : "Cue"}
-            desc={
-              updateInfo
-                ? t("setUpdateAvailable", { version: updateInfo.version })
-                : t("setUpToDate")
-            }
-          >
-            {updateInfo && (
-              <button
-                type="button"
-                onClick={() => openUrl(updateInfo.url)}
-                className={primaryBtn}
-              >
-                <Download size={14} aria-hidden />
-                {t("btnDownload")}
-              </button>
-            )}
-          </Row>
-        </Section>
-
-        <Section title={t("setData")}>
-          <Row label={t("setEraseAll")} desc={t("setEraseAllDesc")}>
-            <button type="button" onClick={() => requestDataErase()} className={dangerBtn}>
-              <Trash2 size={14} aria-hidden />
-              {t("btnErase")}
+      <div className="flex min-h-0 flex-1">
+        {/* 左: カテゴリナビ */}
+        <nav className="cue-scroll w-40 shrink-0 space-y-0.5 overflow-y-auto border-r border-zinc-200/80 p-2 dark:border-zinc-800">
+          {cats.map(({ id, label, Icon, danger }) => (
+            <button
+              key={id}
+              type="button"
+              title={label}
+              onClick={() => setActive(id)}
+              className={`flex w-full cursor-pointer items-center gap-2.5 rounded-lg px-2.5 py-2 text-left text-[13px] font-medium outline-none transition-colors focus-visible:ring-2 focus-visible:ring-accent-500/50 ${
+                active === id
+                  ? danger
+                    ? "bg-red-500/10 text-red-600 dark:text-red-400"
+                    : "bg-accent-500/15 text-accent-700 dark:text-accent-300"
+                  : "text-zinc-600 hover:bg-zinc-200/60 dark:text-zinc-300 dark:hover:bg-zinc-800"
+              }`}
+            >
+              <Icon size={16} className="shrink-0" aria-hidden />
+              <span className="truncate">{label}</span>
             </button>
-          </Row>
-        </Section>
+          ))}
+        </nav>
+
+        {/* 右: 選択カテゴリの内容 */}
+        <div className="cue-scroll flex-1 overflow-y-auto px-5 py-5">
+          {active === "appearance" && (
+            <Pane title={t("catAppearance")}>
+              <Card>
+                <Row label={t("setLanguage")}>
+                  <Dropdown
+                    value={draft.lang}
+                    ariaLabel={t("setLanguage")}
+                    onChange={(v) => patch({ lang: v })}
+                    options={LANGUAGES.map((l) => ({ value: l.id, label: l.label }))}
+                  />
+                </Row>
+                <Row label={t("setAccent")}>
+                  <div className="flex items-center gap-2.5">
+                    {ACCENTS.map((a) => (
+                      <button
+                        key={a.id}
+                        type="button"
+                        title={a.id}
+                        aria-label={`${t("setAccent")}: ${a.id}`}
+                        aria-pressed={draft.accent === a.id}
+                        onClick={() => patch({ accent: a.id })}
+                        style={{ backgroundColor: a.color }}
+                        className={`h-6 w-6 cursor-pointer rounded-full outline-none transition-transform duration-150 active:scale-90 ${
+                          draft.accent === a.id
+                            ? "ring-2 ring-zinc-400 ring-offset-2 ring-offset-white dark:ring-zinc-300 dark:ring-offset-zinc-900"
+                            : "hover:scale-110"
+                        }`}
+                      />
+                    ))}
+                  </div>
+                </Row>
+                <Row label={t("setTextSize")}>
+                  <div className="inline-flex rounded-lg bg-zinc-200/70 p-0.5 dark:bg-zinc-800">
+                    {TEXT_SCALES.map((s) => (
+                      <button
+                        key={s.value}
+                        type="button"
+                        onClick={() => patch({ text_scale: s.value })}
+                        className={`cursor-pointer rounded-md px-2.5 py-1 text-[12px] font-medium outline-none transition-colors duration-150 focus-visible:ring-2 focus-visible:ring-accent-500/50 ${
+                          draft.text_scale === s.value
+                            ? "bg-white text-zinc-900 shadow-sm dark:bg-zinc-700 dark:text-zinc-100"
+                            : "text-zinc-500 hover:text-zinc-700 dark:hover:text-zinc-300"
+                        }`}
+                      >
+                        {t(s.key)}
+                      </button>
+                    ))}
+                  </div>
+                </Row>
+              </Card>
+            </Pane>
+          )}
+
+          {active === "shortcuts" && (
+            <Pane title={t("setShortcuts")}>
+              <Card>
+                <Row label={t("setSummon")} desc={t("setSummonDesc")}>
+                  <ShortcutInput
+                    label={t("setSummon")}
+                    value={draft.summon_shortcut}
+                    onChange={(v) => patch({ summon_shortcut: v })}
+                  />
+                </Row>
+                <Row label={t("setQuicksave")} desc={t("setQuicksaveDesc")}>
+                  <ShortcutInput
+                    label={t("setQuicksave")}
+                    value={draft.quicksave_shortcut}
+                    onChange={(v) => patch({ quicksave_shortcut: v })}
+                  />
+                </Row>
+              </Card>
+            </Pane>
+          )}
+
+          {active === "startup" && (
+            <Pane title={t("setStartup")}>
+              <Card>
+                <Row label={t("setAutostart")}>
+                  <Toggle
+                    label={t("setAutostart")}
+                    checked={draft.autostart}
+                    onChange={(v) => patch({ autostart: v })}
+                  />
+                </Row>
+                <Row label={t("setAot")} desc={t("setAotDesc")}>
+                  <Toggle
+                    label={t("setAot")}
+                    checked={draft.always_on_top_default}
+                    onChange={(v) => patch({ always_on_top_default: v })}
+                  />
+                </Row>
+                <Row label={t("setPromoteImageCopy")} desc={t("setPromoteImageCopyDesc")}>
+                  <Toggle
+                    label={t("setPromoteImageCopy")}
+                    checked={draft.promote_image_copy}
+                    onChange={(v) => patch({ promote_image_copy: v })}
+                  />
+                </Row>
+              </Card>
+            </Pane>
+          )}
+
+          {active === "ai" && (
+            <Pane title={t("setAiSection")}>
+              <Card>
+                <AiSettings value={draft.ai} onChange={(ai) => patch({ ai })} />
+              </Card>
+            </Pane>
+          )}
+
+          {active === "backup" && (
+            <Pane title={t("setBackup")}>
+              <Card>
+                <Row label={t("setFile")} desc={t("setFileDesc")}>
+                  <div className="flex gap-2">
+                    <button type="button" onClick={() => exportToFile()} className={secondaryBtn}>
+                      <Download size={14} aria-hidden />
+                      {t("btnExport")}
+                    </button>
+                    <button type="button" onClick={() => importFromFile()} className={secondaryBtn}>
+                      <Upload size={14} aria-hidden />
+                      {t("btnImport")}
+                    </button>
+                  </div>
+                </Row>
+                <Row label={t("setGit")} desc={t("setGitDesc")}>
+                  <Toggle
+                    label={t("setGit")}
+                    checked={draft.git_enabled}
+                    onChange={(v) => patch({ git_enabled: v })}
+                  />
+                </Row>
+                {draft.git_enabled && (
+                  <div className="space-y-2.5 px-3.5 py-3">
+                    <div className="flex items-center gap-1.5 text-[11px]">
+                      {gitOk === null ? (
+                        <span className="text-zinc-400">{t("setGitChecking")}</span>
+                      ) : gitOk ? (
+                        <span className="flex items-center gap-1 text-emerald-600 dark:text-emerald-400">
+                          <Check size={13} aria-hidden /> {t("setGitFound")}
+                        </span>
+                      ) : (
+                        <span className="flex items-center gap-1 text-amber-600 dark:text-amber-400">
+                          <TriangleAlert size={13} aria-hidden /> {t("setGitMissing")}
+                        </span>
+                      )}
+                    </div>
+                    <input
+                      value={draft.git_remote}
+                      onChange={(e) => patch({ git_remote: e.target.value })}
+                      placeholder="git@github.com:you/cue-private.git"
+                      aria-label="URL"
+                      spellCheck={false}
+                      className={inputCls}
+                    />
+                    <div className="flex items-center gap-2">
+                      <input
+                        value={draft.git_branch}
+                        onChange={(e) => patch({ git_branch: e.target.value })}
+                        placeholder="main"
+                        aria-label="branch"
+                        spellCheck={false}
+                        className="h-9 w-24 shrink-0 rounded-lg border border-zinc-300 bg-transparent px-2.5 text-[12px] text-zinc-800 outline-none transition-colors focus-visible:border-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/40 dark:border-zinc-700 dark:text-zinc-100"
+                      />
+                      <button
+                        type="button"
+                        onClick={onSyncNow}
+                        disabled={syncing || !draft.git_remote.trim() || gitOk === false}
+                        className="flex h-9 flex-1 cursor-pointer items-center justify-center gap-1.5 rounded-lg bg-accent-600 px-3 text-[12px] font-medium whitespace-nowrap text-white outline-none transition duration-150 hover:bg-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/60 active:scale-95 disabled:cursor-not-allowed disabled:opacity-50"
+                      >
+                        <RefreshCw size={14} className={syncing ? "animate-spin" : ""} aria-hidden />
+                        {syncing ? t("btnSyncing") : t("btnSyncNow")}
+                      </button>
+                    </div>
+                    <p className="text-[11px] leading-relaxed text-zinc-400">
+                      {t("setGitNote")}
+                      {lastSyncedAt
+                        ? " " +
+                          t("setLastSync", {
+                            time: new Date(lastSyncedAt).toLocaleTimeString(),
+                          })
+                        : ""}
+                    </p>
+                  </div>
+                )}
+              </Card>
+            </Pane>
+          )}
+
+          {active === "about" && (
+            <Pane title={t("setVersion")}>
+              <Card>
+                <Row
+                  label={version ? `Cue ${version}` : "Cue"}
+                  desc={
+                    updateInfo
+                      ? t("setUpdateAvailable", { version: updateInfo.version })
+                      : t("setUpToDate")
+                  }
+                >
+                  {updateInfo && (
+                    <button
+                      type="button"
+                      onClick={() => openUrl(updateInfo.url)}
+                      className={primaryBtn}
+                    >
+                      <Download size={14} aria-hidden />
+                      {t("btnDownload")}
+                    </button>
+                  )}
+                </Row>
+              </Card>
+            </Pane>
+          )}
+
+          {active === "data" && (
+            <Pane title={t("setData")}>
+              <Card>
+                <Row label={t("setEraseAll")} desc={t("setEraseAllDesc")}>
+                  <button type="button" onClick={() => requestDataErase()} className={dangerBtn}>
+                    <Trash2 size={14} aria-hidden />
+                    {t("btnErase")}
+                  </button>
+                </Row>
+              </Card>
+            </Pane>
+          )}
+        </div>
       </div>
 
       <footer className="flex items-center justify-between gap-3 border-t border-zinc-200/80 px-4 py-2.5 dark:border-zinc-800">

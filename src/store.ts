@@ -16,6 +16,7 @@ import * as dbApi from "./lib/db";
 import { type Lang, detectLang, makeTranslate } from "./lib/i18n";
 import { type UpdateInfo, currentVersion, fetchUpdate } from "./lib/update";
 import { IMAGE_COPY_MIN_CHARS, renderTextToPngBlob } from "./lib/render";
+import { activeConfig, aiOptimize } from "./lib/ai";
 import {
   applyShortcuts,
   copyImageToClipboard,
@@ -131,6 +132,8 @@ interface CueState {
   saveDraft: () => Promise<void>;
   closeEditor: () => void;
   togglePreview: () => void;
+  optimizing: boolean;
+  optimizeDraft: () => Promise<void>;
 
   removeItem: (id: number) => Promise<void>;
   togglePin: (item: Item) => Promise<void>;
@@ -204,6 +207,7 @@ export const useStore = create<CueState>((set, get) => ({
   selectedId: null,
   editor: null,
   previewMode: false,
+  optimizing: false,
   settingsOpen: false,
   settings: DEFAULT_SETTINGS,
   windowPinned: false,
@@ -641,6 +645,29 @@ export const useStore = create<CueState>((set, get) => ({
   closeEditor: () => set({ editor: null }),
   togglePreview: () => set((s) => ({ previewMode: !s.previewMode })),
 
+  optimizeDraft: async () => {
+    const { editor, settings, optimizing } = get();
+    if (optimizing || !editor) return;
+    const lang = settings.lang;
+    const provider = settings.ai.provider;
+    if (!provider) {
+      get().toast(tr(lang)("tAiNotConfigured"), "error");
+      return;
+    }
+    if (!editor.body.trim()) return;
+    set({ optimizing: true });
+    try {
+      const result = await aiOptimize(provider, activeConfig(settings.ai), editor.body);
+      // 最適化中に別の編集へ切り替わっていなければ結果を反映。
+      set((s) => (s.editor ? { editor: { ...s.editor, body: result } } : {}));
+      get().toast(tr(lang)("tOptimized"));
+    } catch (e) {
+      get().toast(tr(lang)("tOptimizeFail", { e: String(e) }), "error");
+    } finally {
+      set({ optimizing: false });
+    }
+  },
+
   removeItem: async (id) => {
     await dbApi.deleteItem(id);
     await get().refresh();
@@ -727,6 +754,7 @@ export const useStore = create<CueState>((set, get) => ({
     await dbApi.setSetting("lang", next.lang);
     await dbApi.setSetting("text_scale", String(next.text_scale));
     await dbApi.setSetting("promote_image_copy", next.promote_image_copy ? "1" : "0");
+    await dbApi.setSetting("ai_config", JSON.stringify(next.ai));
     applyAccent(next.accent);
     applyTextScale(next.text_scale);
 

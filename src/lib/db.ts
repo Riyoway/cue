@@ -1,6 +1,8 @@
 import Database from "@tauri-apps/plugin-sql";
 import {
+  DEFAULT_AI,
   DEFAULT_SETTINGS,
+  type AiState,
   type Item,
   type ItemRow,
   type Project,
@@ -8,6 +10,20 @@ import {
   type Snapshot,
   type ThemeMode,
 } from "../types";
+
+/** settings テーブルの JSON 文字列 → AiState（壊れていれば既定）。 */
+function parseAi(raw: string | undefined): AiState {
+  if (!raw) return DEFAULT_AI;
+  try {
+    const p = JSON.parse(raw);
+    return {
+      provider: typeof p?.provider === "string" ? p.provider : "",
+      byProvider: p?.byProvider && typeof p.byProvider === "object" ? p.byProvider : {},
+    };
+  } catch {
+    return DEFAULT_AI;
+  }
+}
 
 let dbPromise: Promise<Database> | null = null;
 
@@ -340,6 +356,7 @@ export async function getSettings(): Promise<Settings> {
     text_scale: Number(map.get("text_scale")) || DEFAULT_SETTINGS.text_scale,
     promote_image_copy: map.get("promote_image_copy") !== "0", // 既定 on
     image_copy_warn_dismissed: map.get("image_copy_warn_dismissed") === "1",
+    ai: parseAi(map.get("ai_config")),
   };
 }
 

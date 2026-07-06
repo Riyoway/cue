@@ -40,6 +40,21 @@ export interface ItemRow {
 
 export type ThemeMode = "system" | "light" | "dark";
 
+/** 1 プロバイダ分の AI 設定。 */
+export interface AiProviderConfig {
+  apiKey: string;
+  model: string;
+  host: string; // Ollama のホスト上書き
+}
+
+/** AI プロンプト最適化の設定。provider = 使用中のプロバイダ id。 */
+export interface AiState {
+  provider: string;
+  byProvider: Record<string, AiProviderConfig>;
+}
+
+export const DEFAULT_AI: AiState = { provider: "", byProvider: {} };
+
 export interface Settings {
   theme: ThemeMode;
   summon_shortcut: string;
@@ -57,6 +72,8 @@ export interface Settings {
   promote_image_copy: boolean;
   /** 推奨外（短い）プロンプトの画像コピー警告を「次回から表示しない」で無効化したか。 */
   image_copy_warn_dismissed: boolean;
+  /** AI プロンプト最適化の設定。settings テーブルには JSON 文字列で保存。 */
+  ai: AiState;
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -74,6 +91,7 @@ export const DEFAULT_SETTINGS: Settings = {
   text_scale: 1,
   promote_image_copy: true,
   image_copy_warn_dismissed: false,
+  ai: DEFAULT_AI,
 };
 
 /** テキストサイズの選択肢（WebView ズーム倍率＋i18nキー） */

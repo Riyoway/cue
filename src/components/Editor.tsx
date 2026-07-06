@@ -1,5 +1,5 @@
 import { type KeyboardEvent, useEffect, useRef } from "react";
-import { Copy, Eye, Image as ImageIcon, SquarePen } from "lucide-react";
+import { Copy, Eye, Image as ImageIcon, Loader2, Sparkles, SquarePen } from "lucide-react";
 import { useStore } from "../store";
 import { renderMarkdown } from "../lib/markdown";
 import { copyToClipboard } from "../lib/tauri";
@@ -19,6 +19,8 @@ export function Editor() {
   const togglePreview = useStore((s) => s.togglePreview);
   const requestImageCopy = useStore((s) => s.requestImageCopy);
   const promoteImageCopy = useStore((s) => s.settings.promote_image_copy);
+  const optimizeDraft = useStore((s) => s.optimizeDraft);
+  const optimizing = useStore((s) => s.optimizing);
   const toast = useStore((s) => s.toast);
 
   const bodyRef = useRef<HTMLTextAreaElement>(null);
@@ -62,10 +64,11 @@ export function Editor() {
           value={draft.title}
           onChange={(e) => updateDraft({ title: e.target.value })}
           onKeyDown={onKeyDown}
+          disabled={optimizing}
           placeholder={t("edTitlePlaceholder")}
           aria-label={t("titlePlaceholder")}
           spellCheck={false}
-          className="w-full bg-transparent text-[15px] font-medium text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-500"
+          className="w-full bg-transparent text-[15px] font-medium text-zinc-800 outline-none placeholder:text-zinc-400 disabled:opacity-50 dark:text-zinc-100 dark:placeholder:text-zinc-500"
         />
         <IconButton
           label={previewMode ? t("edBackEdit") : t("edPreview")}
@@ -73,6 +76,18 @@ export function Editor() {
           onClick={togglePreview}
         >
           {previewMode ? <SquarePen size={16} /> : <Eye size={16} />}
+        </IconButton>
+        <IconButton
+          label={optimizing ? t("tOptimizing") : t("edOptimize")}
+          variant={optimizing ? "active" : "default"}
+          onClick={() => optimizeDraft()}
+          disabled={optimizing}
+        >
+          {optimizing ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Sparkles size={16} />
+          )}
         </IconButton>
         <IconButton label={t("edCopyBody")} onClick={copyBody}>
           <Copy size={16} />
@@ -87,23 +102,36 @@ export function Editor() {
         )}
       </div>
 
-      {previewMode ? (
-        <div
-          className="cue-md cue-selectable cue-scroll flex-1 overflow-y-auto px-4 py-3.5 text-[14px] text-zinc-800 dark:text-zinc-100"
-          dangerouslySetInnerHTML={{ __html: renderMarkdown(draft.body) }}
-        />
-      ) : (
-        <textarea
-          ref={bodyRef}
-          value={draft.body}
-          onChange={(e) => updateDraft({ body: e.target.value })}
-          onKeyDown={onKeyDown}
-          placeholder={t("edBodyPlaceholder")}
-          aria-label={t("edBodyPlaceholder")}
-          spellCheck={false}
-          className="cue-scroll flex-1 resize-none bg-transparent px-4 py-3.5 font-mono text-[13px] leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-500"
-        />
-      )}
+      <div className="relative flex min-h-0 flex-1 flex-col">
+        {previewMode ? (
+          <div
+            className="cue-md cue-selectable cue-scroll flex-1 overflow-y-auto px-4 py-3.5 text-[14px] text-zinc-800 dark:text-zinc-100"
+            dangerouslySetInnerHTML={{ __html: renderMarkdown(draft.body) }}
+          />
+        ) : (
+          <textarea
+            ref={bodyRef}
+            value={draft.body}
+            onChange={(e) => updateDraft({ body: e.target.value })}
+            onKeyDown={onKeyDown}
+            disabled={optimizing}
+            placeholder={t("edBodyPlaceholder")}
+            aria-label={t("edBodyPlaceholder")}
+            spellCheck={false}
+            className={`cue-scroll flex-1 resize-none bg-transparent px-4 py-3.5 font-mono text-[13px] leading-relaxed text-zinc-800 outline-none placeholder:text-zinc-400 dark:text-zinc-100 dark:placeholder:text-zinc-500 ${
+              optimizing ? "opacity-40" : ""
+            }`}
+          />
+        )}
+        {optimizing && (
+          <div className="cue-fade-in absolute inset-0 z-10 grid place-items-center bg-white/50 backdrop-blur-[1px] dark:bg-zinc-900/50">
+            <div className="flex items-center gap-2 rounded-full bg-white px-4 py-2 text-[13px] font-medium text-zinc-700 shadow-lg ring-1 ring-zinc-200 dark:bg-zinc-800 dark:text-zinc-200 dark:ring-zinc-700">
+              <Loader2 size={16} className="animate-spin text-accent-600 dark:text-accent-400" />
+              {t("tOptimizing")}
+            </div>
+          </div>
+        )}
+      </div>
 
       <div className="flex items-center justify-between gap-3 border-t border-zinc-200/80 px-3 py-2.5 dark:border-zinc-800">
         <span className="text-[11px] text-zinc-400">
@@ -119,7 +147,8 @@ export function Editor() {
           </button>
           <button
             onClick={saveDraft}
-            className="cursor-pointer rounded-md bg-accent-600 px-3.5 py-1.5 text-[13px] font-medium text-white outline-none transition-colors duration-150 hover:bg-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/60"
+            disabled={optimizing}
+            className="cursor-pointer rounded-md bg-accent-600 px-3.5 py-1.5 text-[13px] font-medium text-white outline-none transition-colors duration-150 hover:bg-accent-500 focus-visible:ring-2 focus-visible:ring-accent-500/60 disabled:cursor-not-allowed disabled:opacity-50"
           >
             {t("btnSave")}
           </button>

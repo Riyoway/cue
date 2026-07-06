@@ -13,6 +13,8 @@ use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_window_state::StateFlags;
 
+mod ai;
+
 /// 現在登録中のグローバルショートカットを保持する。
 #[derive(Default)]
 struct Shortcuts {
@@ -427,7 +429,11 @@ pub fn run() {
             git_available,
             git_remote_snapshot,
             git_commit_snapshot,
-            open_url
+            open_url,
+            ai::ai_list_models,
+            ai::ai_check,
+            ai::ai_optimize,
+            ai::ai_open_login_terminal
         ])
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
