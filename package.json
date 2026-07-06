@@ -2,7 +2,7 @@
   "name": "cue",
   "private": true,
   "version": "0.1.0",
-  "description": "Save AI prompts, search them, and reuse them instantly.",
+  "description": "Save, search, and optimize the prompts you send to AI.",
   "license": "MIT",
   "author": "Riyoway",
   "repository": "https://github.com/Riyoway/cue",

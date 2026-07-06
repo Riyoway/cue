@@ -5,7 +5,7 @@
 <h1 align="center">Cue</h1>
 
 <p align="center">
-  Save AI prompts, search them, and reuse them instantly.
+  Save, search, and optimize the prompts you send to AI.
 </p>
 
 <p align="center">
@@ -31,18 +31,22 @@
 
 Cue is a desktop app for saving and reusing the prompts you send to AI tools like Claude Code, Codex, and ChatGPT. Save a prompt with a hotkey, search for it later, and click it to copy.
 
+Two things set it apart: **optimize** any prompt with the AI of your choice — OpenAI, Claude, Gemini, Ollama, OpenRouter, or your local Claude Code / Opencode / Antigravity CLI — and **copy a long prompt as an image** to spend far fewer input tokens.
+
 Works on Windows, macOS, and Linux.
 
 ## Features
 
 - **Launcher**: Open with a global hotkey, search, and click an item to copy it.
+- **AI prompt optimizer**: Rewrite the prompt you're editing in one click, using OpenAI, Claude, Gemini, Ollama, OpenRouter, or a local Claude Code / Opencode / Antigravity CLI. Pick a provider and model in Settings.
+- **Copy as image**: For a long prompt, copy it as a dense PNG instead of text. An image's token cost depends on its size, not its character count, so pasting it into a multimodal model can cost far fewer input tokens — a technique that's catching on.
 - **Projects**: Group prompts, with an "All" view across them.
 - **Markdown**: Each prompt supports Markdown, and you can switch between editing and preview.
 - **Organize**: Search, pin, drag to reorder, and a context menu (rename, copy, preview, edit, pin, delete).
 - **Always on top**: Keep the window above other apps.
 - **Backup and sync**: Export and import all data as one JSON file, or sync to a private Git repository you own.
 - **Themes and languages**: Light and dark themes, accent colors, text size, and 14 languages.
-- **Local storage**: Data is kept in a local SQLite file. Nothing is sent anywhere unless you set up Git sync.
+- **Local-first**: Prompts live in a local SQLite file. The optimizer sends a prompt only to the provider you pick, Cue checks GitHub for a newer release on launch, and nothing else leaves your machine.
 
 ## Keyboard shortcuts
 
@@ -98,7 +102,7 @@ src-tauri/
 
 ## Data & privacy
 
-Your data is stored in a local SQLite database (`cue.db`) under the OS app data directory, for example `%APPDATA%\com.cue.app` on Windows. Cue does not make any network calls on its own. If you turn on Git sync, it pushes only to the private repository URL you provide, using your own git credentials.
+Your data is stored in a local SQLite database (`cue.db`) under the OS app data directory, for example `%APPDATA%\com.cue.app` on Windows. Cue reaches the network only to: send a prompt to the AI provider you choose when you run the optimizer, check GitHub for a newer release on launch, and — if you turn on Git sync — push to the private repository URL you provide with your own git credentials.
 
 ## Contributing
 

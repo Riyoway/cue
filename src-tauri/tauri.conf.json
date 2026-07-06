@@ -45,8 +45,8 @@
     "targets": "all",
     "category": "Productivity",
     "copyright": "© 2026 Riyoway",
-    "shortDescription": "Save AI prompts, search them, and reuse them instantly.",
-    "longDescription": "Cue is a desktop app for saving and reusing the prompts you send to AI tools like Claude Code, Codex, and ChatGPT. Save a prompt with a hotkey, search for it later, and click it to copy. Markdown notes, projects, global hotkeys, and private Git sync.",
+    "shortDescription": "Save, search, and optimize the prompts you send to AI.",
+    "longDescription": "Cue is a desktop app for saving and reusing the prompts you send to AI tools like Claude Code, Codex, and ChatGPT. Save a prompt with a hotkey, search for it later, and click it to copy. Optimize any prompt with your choice of AI (OpenAI, Claude, Gemini, Ollama, OpenRouter, or a local Claude Code / Opencode / Antigravity CLI), or copy a long prompt as a dense image to cut input tokens. Markdown notes, projects, global hotkeys, and private Git sync.",
     "icon": [
       "icons/32x32.png",
       "icons/128x128.png",
