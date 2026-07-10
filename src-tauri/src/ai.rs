@@ -32,7 +32,7 @@ pub struct AiStatus {
     error: Option<String>,
 }
 
-const OPT_INSTRUCTION: &str = "Rewrite the following prompt to be clearer, more specific, and more effective for an AI assistant. Keep the original intent and the same language as the input. Output ONLY the improved prompt — no preamble, no explanation, no surrounding quotes.";
+const OPT_INSTRUCTION: &str = "Rewrite the prompt below so it reads more naturally and clearly. Keep the exact same meaning, intent, scope, and language. Do not add, remove, or change any requirements, details, or requests — only improve the wording and phrasing. Output only the rewritten prompt, with no preamble, explanation, or surrounding quotes.";
 
 fn is_cli(provider: &str) -> bool {
     matches!(provider, "claude-code" | "opencode" | "antigravity")
@@ -402,23 +402,36 @@ fn opencode_authed() -> Option<bool> {
     }
 }
 
-/// 指示＋プロンプトを CLI に渡してヘッドレス実行。stdout を返す。
-/// ネイティブ exe は引数で（シェル非経由・注入安全）、Windows の .cmd/.bat シムは
-/// cmd.exe 経由になり改行入り引数が壊れるため **stdin** で渡す。
-fn cli_optimize(
-    name: &str,
-    lead: &[String],
-    model_flag: Option<(&str, &str)>,
-    prompt: &str,
-) -> Result<String, String> {
+/// claude / agy の引数（プロンプト直前まで）。`-p` はプロンプトを値に取るため、
+/// `-p --model ...` の順だと --model がプロンプト扱いになり誤作動する（agy が自分のモデルを
+/// 答えてしまう等）。--model を `-p` の前に置き、プロンプトが `-p` の直後に来るようにする。
+fn p_lead(model: &str) -> Vec<String> {
+    let mut v = Vec::new();
+    if !model.is_empty() {
+        v.push("--model".to_string());
+        v.push(model.to_string());
+    }
+    v.push("-p".to_string());
+    v
+}
+
+/// opencode の引数（`run` サブコマンドが先、`-m` は run の後）。
+fn run_lead(model: &str) -> Vec<String> {
+    let mut v = vec!["run".to_string()];
+    if !model.is_empty() {
+        v.push("-m".to_string());
+        v.push(model.to_string());
+    }
+    v
+}
+
+/// 指示＋プロンプトを CLI に渡してヘッドレス実行。stdout を返す。lead はプロンプト直前までの引数。
+/// ネイティブ exe はプロンプトを最後の引数で（シェル非経由・注入安全）、Windows の .cmd/.bat シムは
+/// cmd.exe 経由で改行入り引数が壊れるため **stdin** で渡す。
+fn cli_optimize(name: &str, lead: &[String], prompt: &str) -> Result<String, String> {
     let text = format!("{OPT_INSTRUCTION}\n\n---\n{prompt}");
     let (mut cmd, batch) = cli_command(name);
     cmd.args(lead);
-    if let Some((flag, model)) = model_flag {
-        if !model.is_empty() {
-            cmd.arg(flag).arg(model);
-        }
-    }
 
     let out = if batch {
         // プロンプトは stdin へ（CLI は非 TTY の stdin を入力として読む）。
@@ -541,24 +554,9 @@ pub async fn ai_optimize(config: AiConfig, prompt: String) -> Result<String, Str
         "anthropic" => chat_anthropic(&config.api_key, &config.model, &prompt).await,
         "gemini" => chat_gemini(&config.api_key, &config.model, &prompt).await,
         "ollama" => chat_ollama(&ollama_base(&config.host), &config.model, &prompt).await,
-        "claude-code" => cli_optimize(
-            "claude",
-            &["-p".to_string()],
-            Some(("--model", &config.model)),
-            &prompt,
-        ),
-        "opencode" => cli_optimize(
-            "opencode",
-            &["run".to_string()],
-            Some(("-m", &config.model)),
-            &prompt,
-        ),
-        "antigravity" => cli_optimize(
-            "agy",
-            &["-p".to_string()],
-            Some(("--model", &config.model)),
-            &prompt,
-        ),
+        "claude-code" => cli_optimize("claude", &p_lead(&config.model), &prompt),
+        "opencode" => cli_optimize("opencode", &run_lead(&config.model), &prompt),
+        "antigravity" => cli_optimize("agy", &p_lead(&config.model), &prompt),
         p => Err(format!("unknown provider: {p}")),
     }
 }
