@@ -14,7 +14,7 @@ import {
 } from "./types";
 import * as dbApi from "./lib/db";
 import { type Lang, detectLang, makeTranslate } from "./lib/i18n";
-import { type UpdateInfo, currentVersion, fetchUpdate } from "./lib/update";
+import { type Update, checkUpdate, currentVersion, relaunch } from "./lib/update";
 import { IMAGE_COPY_MIN_CHARS, renderTextToPngBlob } from "./lib/render";
 import { activeConfig, aiOptimize } from "./lib/ai";
 import {
@@ -76,8 +76,11 @@ interface CueState {
   lastSyncedAt: number | null;
   isDark: boolean;
   version: string;
-  updateInfo: UpdateInfo | null;
+  update: Update | null;
   updateDismissed: boolean;
+  installing: boolean;
+  /** ダウンロード進捗 0-100（null = 未ダウンロード）。 */
+  updateProgress: number | null;
   contextMenu: ContextMenuState | null;
   renamingProjectId: number | null;
   renamingItemId: number | null;
@@ -90,6 +93,7 @@ interface CueState {
   reloadAll: () => Promise<void>;
   checkForUpdate: () => Promise<void>;
   dismissUpdate: () => void;
+  installUpdate: () => Promise<void>;
   exportToFile: () => Promise<void>;
   importFromFile: () => Promise<void>;
   setGitConfig: (remote: string, branch: string, enabled: boolean) => Promise<void>;
@@ -216,8 +220,10 @@ export const useStore = create<CueState>((set, get) => ({
   lastSyncedAt: null,
   isDark: false,
   version: "",
-  updateInfo: null,
+  update: null,
   updateDismissed: false,
+  installing: false,
+  updateProgress: null,
   contextMenu: null,
   pendingProjectDelete: null,
   pendingDataErase: false,
@@ -284,11 +290,38 @@ export const useStore = create<CueState>((set, get) => ({
   checkForUpdate: async () => {
     const version = await currentVersion();
     if (version && version !== get().version) set({ version });
-    const info = await fetchUpdate(version);
-    if (info) set({ updateInfo: info });
+    const update = await checkUpdate();
+    if (update) set({ update });
   },
 
   dismissUpdate: () => set({ updateDismissed: true }),
+
+  installUpdate: async () => {
+    const { update, installing } = get();
+    if (!update || installing) return;
+    const lang = get().settings.lang;
+    set({ installing: true, updateProgress: 0 });
+    try {
+      let total = 0;
+      let received = 0;
+      await update.downloadAndInstall((e) => {
+        if (e.event === "Started") {
+          total = e.data.contentLength ?? 0;
+        } else if (e.event === "Progress") {
+          received += e.data.chunkLength;
+          set({
+            updateProgress: total ? Math.min(99, Math.round((received / total) * 100)) : null,
+          });
+        } else if (e.event === "Finished") {
+          set({ updateProgress: 100 });
+        }
+      });
+      await relaunch(); // 成功したら再起動（以降このプロセスは終了）
+    } catch (e) {
+      set({ installing: false, updateProgress: null });
+      get().toast(tr(lang)("tUpdateFail", { e: String(e) }), "error");
+    }
+  },
 
   refresh: async () => {
     const items = await dbApi.listItems();

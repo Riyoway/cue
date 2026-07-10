@@ -6,8 +6,9 @@ name: Release
 #   Windows x64   : NSIS(.exe) / MSI(.msi) / ポータブル(.exe)
 #   Windows ARM64 : NSIS(.exe) / ポータブル(.exe)
 #   macOS (univ)  : .app / .dmg (Intel + Apple Silicon)
-#   Linux  x64    : .deb
+#   Linux  x64    : .deb / .AppImage
 #   Linux  ARM64  : .deb / .AppImage
+# 署名付きなら latest.json も生成し、アプリ内自動アップデートに使う。
 on:
   push:
     tags:
@@ -41,7 +42,7 @@ jobs:
           - name: linux-x64
             runner: ubuntu-22.04
             target: x86_64-unknown-linux-gnu
-            bundles: "deb"
+            bundles: "deb,appimage"
           - name: linux-arm64
             runner: ubuntu-22.04-arm
             target: aarch64-unknown-linux-gnu
@@ -91,6 +92,9 @@ jobs:
         uses: tauri-apps/tauri-action@v0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # 自動アップデート用の署名。空パスワードは秘密でないのでリテラルで。
+          TAURI_SIGNING_PRIVATE_KEY: ${{ secrets.TAURI_SIGNING_PRIVATE_KEY }}
+          TAURI_SIGNING_PRIVATE_KEY_PASSWORD: ""
         with:
           tagName: ${{ github.ref_name }}
           releaseName: "Cue ${{ github.ref_name }}"
@@ -108,9 +112,8 @@ jobs:
           Copy-Item "src-tauri/target/${{ matrix.target }}/release/cue.exe" "${{ matrix.portable_name }}"
           gh release upload ${{ github.ref_name }} "${{ matrix.portable_name }}" --clobber
 
-  # 全ビルド完了後、アセット名に OS を入れて統一する。
-  #   Cue_<version>_<os>_<arch>[_<kind>].<ext>
-  #   os は拡張子から判定: deb/AppImage/rpm=linux, dmg/app.tar.gz=macos, exe/msi=windows
+  # 全ビルド完了後: (1) アセット名を OS 付きに統一、(2) 自動アップデート用 latest.json を生成。
+  #   命名: Cue_<version>_<os>_<arch>[_<kind>].<ext>（os は拡張子から判定）
   rename-assets:
     needs: build
     if: startsWith(github.ref, 'refs/tags/')
@@ -136,6 +139,15 @@ jobs:
 
           normalize() {
             local n="$1" low ext os arch kind
+            # .sig は元アセットを正規化して .sig を付け直す（署名と本体の名前を対応させる）。
+            case "$n" in
+              *.sig)
+                local base nb
+                base="${n%.sig}"
+                nb=$(normalize "$base")
+                [ -n "$nb" ] && printf '%s.sig' "$nb"
+                return ;;
+            esac
             low=$(printf '%s' "$n" | tr '[:upper:]' '[:lower:]')
 
             case "$low" in
@@ -167,6 +179,7 @@ jobs:
             printf '%s.%s' "$out" "$ext"
           }
 
+          # 1) アセット名を OS 付きに統一（.sig も一緒に揃える）
           gh api --paginate "repos/$REPO/releases/$REL_ID/assets" \
             --jq '.[] | "\(.id)\t\(.name)"' | while IFS=$'\t' read -r id name; do
             new=$(normalize "$name")
@@ -177,3 +190,38 @@ jobs:
               echo "keep:   $name"
             fi
           done
+
+          # 2) 自動アップデート用 latest.json を全プラットフォームまとめて生成（リネーム後の名前で参照）
+          BASE="https://github.com/$REPO/releases/download/$TAG"
+          gh api --paginate "repos/$REPO/releases/$REL_ID/assets" \
+            --jq '.[] | "\(.name)\t\(.id)"' > /tmp/assets.tsv
+          sig_of() { # $1=本体名 → <本体>.sig の中身（無ければ空）
+            local sid
+            sid=$(awk -F'\t' -v n="$1.sig" '$1==n{print $2; exit}' /tmp/assets.tsv)
+            [ -z "$sid" ] && return 0
+            gh api "repos/$REPO/releases/assets/$sid" -H "Accept: application/octet-stream" || true
+          }
+          platforms='{}'
+          add() { # $1=プラットフォーム $2=本体名
+            local sig; sig=$(sig_of "$2")
+            if [ -z "$sig" ]; then echo "skip $1: no $2.sig"; return 0; fi
+            platforms=$(jq -c --arg k "$1" --arg u "$BASE/$2" --arg s "$sig" \
+              '. + {($k): {signature:$s, url:$u}}' <<<"$platforms")
+            echo "add  $1"
+          }
+          add windows-x86_64  "Cue_${VER}_windows_x64_setup.exe"
+          add windows-aarch64 "Cue_${VER}_windows_arm64_setup.exe"
+          add darwin-x86_64   "Cue_${VER}_macos_universal.app.tar.gz"
+          add darwin-aarch64  "Cue_${VER}_macos_universal.app.tar.gz"
+          add linux-x86_64    "Cue_${VER}_linux_x64.AppImage"
+          add linux-aarch64   "Cue_${VER}_linux_arm64.AppImage"
+
+          if [ "$platforms" = "{}" ]; then
+            echo "::warning::no signed updater artifacts found; latest.json not created"
+          else
+            PUB=$(date -u +%Y-%m-%dT%H:%M:%SZ)
+            jq -n --arg v "$VER" --arg d "$PUB" --argjson p "$platforms" \
+              '{version:$v, pub_date:$d, platforms:$p}' > latest.json
+            echo "latest.json platforms:"; jq -r '.platforms | keys[]' latest.json
+            gh release upload "$TAG" latest.json --clobber --repo "$REPO"
+          fi

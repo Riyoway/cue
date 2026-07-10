@@ -38,10 +38,20 @@
   "plugins": {
     "sql": {
       "preload": ["sqlite:cue.db"]
+    },
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDJDNTJGNkQ4NEExMjhBMTYKUldRV2loSksyUFpTTE9GakNmUzVBT0hKVjNHNlVVRHlmYWRhVDlFQUdaMHVzOHI0bVU3ZWNEc24K",
+      "endpoints": [
+        "https://github.com/Riyoway/cue/releases/latest/download/latest.json"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
     }
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "category": "Productivity",
     "copyright": "© 2026 Riyoway",

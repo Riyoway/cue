@@ -4,6 +4,7 @@ import {
   Download,
   Info,
   Keyboard,
+  Loader2,
   Palette,
   Power,
   RefreshCw,
@@ -14,7 +15,7 @@ import {
   X,
 } from "lucide-react";
 import { useStore } from "../store";
-import { gitAvailable, openUrl, quitApp } from "../lib/tauri";
+import { gitAvailable, quitApp } from "../lib/tauri";
 import { handleHeaderMouseDown } from "../lib/drag";
 import { LANGUAGES, useT } from "../lib/i18n";
 import { MOD } from "../lib/platform";
@@ -177,7 +178,10 @@ export function Settings() {
   const lastSyncedAt = useStore((s) => s.lastSyncedAt);
   const requestDataErase = useStore((s) => s.requestDataErase);
   const version = useStore((s) => s.version);
-  const updateInfo = useStore((s) => s.updateInfo);
+  const update = useStore((s) => s.update);
+  const installUpdate = useStore((s) => s.installUpdate);
+  const installing = useStore((s) => s.installing);
+  const updateProgress = useStore((s) => s.updateProgress);
   const t = useT();
 
   const [active, setActive] = useState<CatId>("appearance");
@@ -450,21 +454,23 @@ export function Settings() {
                 <Row
                   label={version ? `Cue ${version}` : "Cue"}
                   desc={
-                    updateInfo
-                      ? t("setUpdateAvailable", { version: updateInfo.version })
+                    update
+                      ? t("setUpdateAvailable", { version: update.version })
                       : t("setUpToDate")
                   }
                 >
-                  {updateInfo && (
-                    <button
-                      type="button"
-                      onClick={() => openUrl(updateInfo.url)}
-                      className={primaryBtn}
-                    >
-                      <Download size={14} aria-hidden />
-                      {t("btnDownload")}
-                    </button>
-                  )}
+                  {update &&
+                    (installing ? (
+                      <span className="flex items-center gap-1.5 text-[12px] font-medium text-accent-600 dark:text-accent-300">
+                        <Loader2 size={14} className="animate-spin" aria-hidden />
+                        {t("updateDownloading", { pct: updateProgress ?? 0 })}
+                      </span>
+                    ) : (
+                      <button type="button" onClick={() => installUpdate()} className={primaryBtn}>
+                        <Download size={14} aria-hidden />
+                        {t("btnUpdateRestart")}
+                      </button>
+                    ))}
                 </Row>
               </Card>
             </Pane>

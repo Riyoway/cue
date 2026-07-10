@@ -32,7 +32,7 @@ export function Header() {
   const setWindowPinned = useStore((s) => s.setWindowPinned);
   const newItem = useStore((s) => s.newItem);
   const openSettings = useStore((s) => s.openSettings);
-  const updateAvailable = useStore((s) => s.updateInfo !== null);
+  const updateAvailable = useStore((s) => s.update !== null);
   const theme = useStore((s) => s.settings.theme);
   const setTheme = useStore((s) => s.setTheme);
   const isDark = useStore((s) => s.isDark);

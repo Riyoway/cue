@@ -182,6 +182,9 @@ const en: Dict = {
   tAiNotConfigured: "Set up an AI in Settings first",
   catAppearance: "Appearance",
   tOptimizing: "Optimizing…",
+  btnUpdateRestart: "Update & restart",
+  updateDownloading: "Downloading… {pct}%",
+  tUpdateFail: "Update failed: {e}",
 };
 
 const ja: Dict = {
@@ -328,6 +331,9 @@ const ja: Dict = {
   tAiNotConfigured: "先に設定で AI を構成してください",
   catAppearance: "外観",
   tOptimizing: "最適化中…",
+  btnUpdateRestart: "更新して再起動",
+  updateDownloading: "ダウンロード中… {pct}%",
+  tUpdateFail: "更新に失敗: {e}",
 };
 
 const zh: Dict = {
@@ -474,6 +480,9 @@ const zh: Dict = {
   tAiNotConfigured: "请先在设置中配置 AI",
   catAppearance: "外观",
   tOptimizing: "优化中…",
+  btnUpdateRestart: "更新并重启",
+  updateDownloading: "下载中… {pct}%",
+  tUpdateFail: "更新失败：{e}",
 };
 
 const ko: Dict = {
@@ -620,6 +629,9 @@ const ko: Dict = {
   tAiNotConfigured: "먼저 설정에서 AI를 구성하세요",
   catAppearance: "모양",
   tOptimizing: "최적화 중…",
+  btnUpdateRestart: "업데이트 후 재시작",
+  updateDownloading: "다운로드 중… {pct}%",
+  tUpdateFail: "업데이트 실패: {e}",
 };
 
 const es: Dict = {
@@ -767,6 +779,9 @@ const es: Dict = {
   tAiNotConfigured: "Configura una IA en Ajustes primero",
   catAppearance: "Apariencia",
   tOptimizing: "Optimizando…",
+  btnUpdateRestart: "Actualizar y reiniciar",
+  updateDownloading: "Descargando… {pct}%",
+  tUpdateFail: "Error al actualizar: {e}",
 };
 
 const fr: Dict = {
@@ -914,6 +929,9 @@ const fr: Dict = {
   tAiNotConfigured: "Configurez d’abord une IA dans les paramètres",
   catAppearance: "Apparence",
   tOptimizing: "Optimisation…",
+  btnUpdateRestart: "Mettre à jour et redémarrer",
+  updateDownloading: "Téléchargement… {pct}%",
+  tUpdateFail: "Échec de la mise à jour : {e}",
 };
 
 const de: Dict = {
@@ -1061,6 +1079,9 @@ const de: Dict = {
   tAiNotConfigured: "Richte zuerst eine KI in den Einstellungen ein",
   catAppearance: "Darstellung",
   tOptimizing: "Optimierung…",
+  btnUpdateRestart: "Aktualisieren und neu starten",
+  updateDownloading: "Wird heruntergeladen… {pct}%",
+  tUpdateFail: "Aktualisierung fehlgeschlagen: {e}",
 };
 
 const pt: Dict = {
@@ -1208,6 +1229,9 @@ const pt: Dict = {
   tAiNotConfigured: "Configure uma IA nas Configurações primeiro",
   catAppearance: "Aparência",
   tOptimizing: "Otimizando…",
+  btnUpdateRestart: "Atualizar e reiniciar",
+  updateDownloading: "Baixando… {pct}%",
+  tUpdateFail: "Falha na atualização: {e}",
 };
 
 const it: Dict = {
@@ -1355,6 +1379,9 @@ const it: Dict = {
   tAiNotConfigured: "Configura prima un’IA nelle impostazioni",
   catAppearance: "Aspetto",
   tOptimizing: "Ottimizzazione…",
+  btnUpdateRestart: "Aggiorna e riavvia",
+  updateDownloading: "Download… {pct}%",
+  tUpdateFail: "Aggiornamento non riuscito: {e}",
 };
 
 const ru: Dict = {
@@ -1502,6 +1529,9 @@ const ru: Dict = {
   tAiNotConfigured: "Сначала настройте ИИ в настройках",
   catAppearance: "Оформление",
   tOptimizing: "Оптимизация…",
+  btnUpdateRestart: "Обновить и перезапустить",
+  updateDownloading: "Загрузка… {pct}%",
+  tUpdateFail: "Не удалось обновить: {e}",
 };
 
 const id: Dict = {
@@ -1649,6 +1679,9 @@ const id: Dict = {
   tAiNotConfigured: "Siapkan AI di Pengaturan dulu",
   catAppearance: "Tampilan",
   tOptimizing: "Mengoptimalkan…",
+  btnUpdateRestart: "Perbarui & mulai ulang",
+  updateDownloading: "Mengunduh… {pct}%",
+  tUpdateFail: "Pembaruan gagal: {e}",
 };
 
 const vi: Dict = {
@@ -1796,6 +1829,9 @@ const vi: Dict = {
   tAiNotConfigured: "Hãy thiết lập AI trong Cài đặt trước",
   catAppearance: "Giao diện",
   tOptimizing: "Đang tối ưu…",
+  btnUpdateRestart: "Cập nhật & khởi động lại",
+  updateDownloading: "Đang tải… {pct}%",
+  tUpdateFail: "Cập nhật thất bại: {e}",
 };
 
 const tr: Dict = {
@@ -1943,6 +1979,9 @@ const tr: Dict = {
   tAiNotConfigured: "Önce Ayarlar’da bir AI yapılandırın",
   catAppearance: "Görünüm",
   tOptimizing: "İyileştiriliyor…",
+  btnUpdateRestart: "Güncelle ve yeniden başlat",
+  updateDownloading: "İndiriliyor… {pct}%",
+  tUpdateFail: "Güncelleme başarısız: {e}",
 };
 
 const pl: Dict = {
@@ -2090,6 +2129,9 @@ const pl: Dict = {
   tAiNotConfigured: "Najpierw skonfiguruj AI w Ustawieniach",
   catAppearance: "Wygląd",
   tOptimizing: "Optymalizowanie…",
+  btnUpdateRestart: "Zaktualizuj i uruchom ponownie",
+  updateDownloading: "Pobieranie… {pct}%",
+  tUpdateFail: "Aktualizacja nie powiodła się: {e}",
 };
 
 const DICTS: Record<Lang, Dict> = {
