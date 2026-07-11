@@ -137,7 +137,8 @@ interface CueState {
   closeEditor: () => void;
   togglePreview: () => void;
   optimizing: boolean;
-  optimizeDraft: () => Promise<void>;
+  /** 最適化して結果テキストを返す（反映は呼び出し側が undo 可能な形で行う）。失敗/未構成は null。 */
+  optimizeDraft: () => Promise<string | null>;
 
   removeItem: (id: number) => Promise<void>;
   togglePin: (item: Item) => Promise<void>;
@@ -680,22 +681,22 @@ export const useStore = create<CueState>((set, get) => ({
 
   optimizeDraft: async () => {
     const { editor, settings, optimizing } = get();
-    if (optimizing || !editor) return;
+    if (optimizing || !editor) return null;
     const lang = settings.lang;
     const provider = settings.ai.provider;
     if (!provider) {
       get().toast(tr(lang)("tAiNotConfigured"), "error");
-      return;
+      return null;
     }
-    if (!editor.body.trim()) return;
+    if (!editor.body.trim()) return null;
     set({ optimizing: true });
     try {
       const result = await aiOptimize(provider, activeConfig(settings.ai), editor.body);
-      // 最適化中に別の編集へ切り替わっていなければ結果を反映。
-      set((s) => (s.editor ? { editor: { ...s.editor, body: result } } : {}));
       get().toast(tr(lang)("tOptimized"));
+      return result;
     } catch (e) {
       get().toast(tr(lang)("tOptimizeFail", { e: String(e) }), "error");
+      return null;
     } finally {
       set({ optimizing: false });
     }

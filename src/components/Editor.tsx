@@ -53,6 +53,25 @@ export function Editor() {
     toast(t("tCopied"));
   };
 
+  const runOptimize = async () => {
+    const result = await optimizeDraft();
+    if (result == null) return;
+    // optimizing 解除の再描画で textarea が有効化されるのを待ってから、ネイティブの undo
+    // スタックに乗る形で全文置換する（Ctrl+Z で元の文章に戻せる）。
+    setTimeout(() => {
+      const ta = bodyRef.current;
+      if (ta && !previewMode) {
+        ta.focus();
+        ta.select();
+        if (!document.execCommand("insertText", false, result)) {
+          updateDraft({ body: result }); // execCommand 不可なら通常置換（undo は効かない）
+        }
+      } else {
+        updateDraft({ body: result });
+      }
+    }, 0);
+  };
+
   return (
     <div className="cue-overlay-in absolute inset-0 z-20 flex flex-col bg-white dark:bg-zinc-900">
       <div
@@ -80,7 +99,7 @@ export function Editor() {
         <IconButton
           label={optimizing ? t("tOptimizing") : t("edOptimize")}
           variant={optimizing ? "active" : "default"}
-          onClick={() => optimizeDraft()}
+          onClick={runOptimize}
           disabled={optimizing}
         >
           {optimizing ? (
