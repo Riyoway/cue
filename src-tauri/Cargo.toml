@@ -1,6 +1,6 @@
 [package]
 name = "cue"
-version = "0.1.0"
+version = "0.2.0"
 description = "Save AI prompts, search them, and reuse them instantly."
 authors = ["Riyoway"]
 license = "MIT"

@@ -1,7 +1,7 @@
 {
   "name": "cue",
   "private": true,
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Save, search, and optimize the prompts you send to AI.",
   "license": "MIT",
   "author": "Riyoway",
