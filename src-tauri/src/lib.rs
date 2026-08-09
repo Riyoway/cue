@@ -8,7 +8,8 @@ use std::process::Command;
 use std::str::FromStr;
 use std::sync::Mutex;
 
-use tauri::{AppHandle, Emitter, Manager, State};
+use tauri::image::Image;
+use tauri::{include_image, AppHandle, Emitter, Manager, State, Theme, WindowEvent};
 use tauri_plugin_global_shortcut::{GlobalShortcutExt, Shortcut, ShortcutState};
 use tauri_plugin_sql::{Migration, MigrationKind};
 use tauri_plugin_window_state::StateFlags;
@@ -249,6 +250,43 @@ fn git_commit_snapshot(
 
 // ---- セットアップ ------------------------------------------------------------
 
+// タスクバー/メニューバーの地色に馴染むタイルを選ぶ（アプリ内ロゴと同じ考え方で、
+// タイルは背景に溶け、色付きの "C" だけが浮かんで見える）。
+const TRAY_WHITE: Image<'_> = include_image!("./icons/tray-white.png");
+const TRAY_DARK: Image<'_> = include_image!("./icons/tray-dark.png");
+
+const TRAY_ID: &str = "main";
+
+fn tray_image(theme: Theme) -> Image<'static> {
+    match theme {
+        Theme::Dark => TRAY_DARK,
+        _ => TRAY_WHITE,
+    }
+}
+
+/// OS 側のテーマ。取得できない環境ではライト扱い。
+fn system_theme(app: &AppHandle) -> Theme {
+    app.get_webview_window("main")
+        .and_then(|w| w.theme().ok())
+        .unwrap_or(Theme::Light)
+}
+
+/// テーマ切り替えに追従してトレイアイコンを差し替える。
+/// ponytail: Linux は ThemeChanged が飛ばないので起動時の判定のみ（従来と同じ静的アイコン）。
+fn watch_tray_theme(app: &AppHandle) {
+    let Some(window) = app.get_webview_window("main") else {
+        return;
+    };
+    let handle = app.clone();
+    window.on_window_event(move |event| {
+        if let WindowEvent::ThemeChanged(theme) = event {
+            if let Some(tray) = handle.tray_by_id(TRAY_ID) {
+                let _ = tray.set_icon(Some(tray_image(*theme)));
+            }
+        }
+    });
+}
+
 fn build_tray(app: &AppHandle) -> tauri::Result<()> {
     use tauri::menu::{Menu, MenuItem};
     use tauri::tray::{MouseButton, MouseButtonState, TrayIconBuilder, TrayIconEvent};
@@ -257,7 +295,8 @@ fn build_tray(app: &AppHandle) -> tauri::Result<()> {
     let quit_i = MenuItem::with_id(app, "quit", "Quit", true, None::<&str>)?;
     let menu = Menu::with_items(app, &[&show_i, &quit_i])?;
 
-    let mut builder = TrayIconBuilder::new()
+    TrayIconBuilder::with_id(TRAY_ID)
+        .icon(tray_image(system_theme(app)))
         .menu(&menu)
         .tooltip("Cue")
         .show_menu_on_left_click(false)
@@ -275,13 +314,9 @@ fn build_tray(app: &AppHandle) -> tauri::Result<()> {
             {
                 toggle_window(tray.app_handle());
             }
-        });
+        })
+        .build(app)?;
 
-    if let Some(icon) = app.default_window_icon() {
-        builder = builder.icon(icon.clone());
-    }
-
-    builder.build(app)?;
     Ok(())
 }
 
@@ -416,6 +451,7 @@ pub fn run() {
         .setup(|app| {
             let handle = app.handle();
             build_tray(handle)?;
+            watch_tray_theme(handle);
             register_default_shortcuts(handle);
             Ok(())
         })
