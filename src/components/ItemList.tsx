@@ -3,8 +3,8 @@ import { useStore } from "../store";
 import type { Item } from "../types";
 import { ItemRow } from "./ItemRow";
 import { useT } from "../lib/i18n";
-import iconDark from "../assets/icon.png";
-import iconLight from "../assets/icon-light.png";
+import iconWhite from "../assets/icon.png";
+import iconDark from "../assets/icon-dark.png";
 
 export function ItemList({
   items,
@@ -43,7 +43,7 @@ export function ItemList({
         ) : (
           <>
             <img
-              src={isDark ? iconDark : iconLight}
+              src={isDark ? iconDark : iconWhite}
               alt=""
               draggable={false}
               className="mb-1 h-12 w-12 rounded-xl opacity-80 shadow-sm"

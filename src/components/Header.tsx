@@ -16,8 +16,8 @@ import { handleHeaderMouseDown } from "../lib/drag";
 import { useT } from "../lib/i18n";
 import type { ThemeMode } from "../types";
 import { IconButton } from "./ui";
-import iconDark from "../assets/icon.png";
-import iconLight from "../assets/icon-light.png";
+import iconWhite from "../assets/icon.png";
+import iconDark from "../assets/icon-dark.png";
 
 const THEME_CYCLE: ThemeMode[] = ["system", "light", "dark"];
 const THEME_META: Record<ThemeMode, { Icon: typeof Monitor; key: string }> = {
@@ -50,7 +50,7 @@ export function Header() {
     >
       <div className="flex flex-1 items-center gap-2 pl-1 select-none">
         <img
-          src={isDark ? iconDark : iconLight}
+          src={isDark ? iconDark : iconWhite}
           alt=""
           draggable={false}
           className="h-[26px] w-[26px] rounded-[7px] shadow-sm"
